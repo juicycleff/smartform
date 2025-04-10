@@ -39,9 +39,9 @@ go get github.com/juicycleff/smartform/v1
 ### Frontend (React/TypeScript)
 
 ```bash
-npm install @juicycleff/smartform-react
+npm install @xraph/smartform-react
 # or
-yarn add @juicycleff/smartform-react
+yarn add @xraph/smartform-react
 ```
 
 ## Quick Start
@@ -94,7 +94,7 @@ func main() {
 
 ```tsx
 import React, { useState, useEffect } from 'react';
-import { SmartForm, useSmartForm } from '@juicycleff/smartform-react';
+import { SmartForm, useSmartForm } from '@xraph/smartform-react';
 
 function ContactFormPage() {
   const [formSchema, setFormSchema] = useState(null);
