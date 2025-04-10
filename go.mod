@@ -1,3 +1,3 @@
-module github.com/wakflo/smart-form
+module github.com/juicycleff/smartform
 
 go 1.24.1
