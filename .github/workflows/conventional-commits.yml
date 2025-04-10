@@ -7,6 +7,9 @@ on:
 jobs:
   check-conventional-commits:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     outputs:
       should_release: ${{ steps.changelog.outputs.skipped == 'false' }}
       new_version: ${{ steps.changelog.outputs.version }}
@@ -74,6 +77,8 @@ jobs:
     needs: check-conventional-commits
     if: needs.check-conventional-commits.outputs.should_release == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
