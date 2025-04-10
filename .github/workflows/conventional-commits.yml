@@ -10,6 +10,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
+      repository-projects: write
+      id-token: write
     outputs:
       should_release: ${{ steps.changelog.outputs.skipped == 'false' }}
       new_version: ${{ steps.changelog.outputs.version }}
@@ -79,6 +82,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
+      issues: write
+      repository-projects: write
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
