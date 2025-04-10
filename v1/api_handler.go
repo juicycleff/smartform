@@ -136,7 +136,11 @@ func (ah *APIHandler) handleForms(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(formsList)
+	err := json.NewEncoder(w).Encode(formsList)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleForm handles requests for a specific form
@@ -267,7 +271,11 @@ func (ah *APIHandler) handleOptions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(options)
+	err = json.NewEncoder(w).Encode(options)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleValidate handles form validation requests
@@ -303,7 +311,11 @@ func (ah *APIHandler) handleValidate(w http.ResponseWriter, r *http.Request) {
 	result := validator.ValidateForm(formData)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	err := json.NewEncoder(w).Encode(result)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleSubmit handles form submission
@@ -342,7 +354,11 @@ func (ah *APIHandler) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		// Return validation errors
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(result)
+		err := json.NewEncoder(w).Encode(result)
+		if err != nil {
+			http.Error(w, "Bad request", http.StatusBadRequest)
+			return
+		}
 		return
 	}
 
@@ -355,7 +371,11 @@ func (ah *APIHandler) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	err := json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleAuth handles authentication requests
@@ -412,7 +432,11 @@ func (ah *APIHandler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleDynamicFunction handles requests to execute a dynamic function
@@ -460,7 +484,11 @@ func (ah *APIHandler) handleDynamicFunction(w http.ResponseWriter, r *http.Reque
 
 	// Return the result
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(result)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleDynamicField handles requests to get/update a dynamic field
@@ -520,7 +548,11 @@ func (ah *APIHandler) handleDynamicField(w http.ResponseWriter, r *http.Request)
 
 	// Return the result
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(result)
+	err = json.NewEncoder(w).Encode(result)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
 
 // handleDynamicOptions handles requests for dynamic field options with search/filter support
@@ -619,5 +651,9 @@ func (ah *APIHandler) handleDynamicOptions(w http.ResponseWriter, r *http.Reques
 
 	// Return the result
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
 }
