@@ -406,7 +406,7 @@ func (v *Validator) getValueByPath(data map[string]interface{}, path string) int
 
 			// Get the index
 			var index int
-			fmt.Sscanf(indexStr, "%d", &index)
+			_, _ = fmt.Sscanf(indexStr, "%d", &index)
 
 			// Check if the index is valid
 			if index < 0 || index >= len(arr) {

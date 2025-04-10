@@ -181,7 +181,7 @@ func (ah *APIHandler) handleForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(jsonString))
+	_, _ = w.Write([]byte(jsonString))
 }
 
 // handleOptions handles requests for field options

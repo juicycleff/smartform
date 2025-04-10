@@ -79,6 +79,9 @@ func (os *OptionService) fetchAPIOptions(source *DynamicSource, context map[stri
 			return nil, fmt.Errorf("error marshaling parameters: %w", err)
 		}
 		req, err = http.NewRequest(source.Method, endpoint, bytes.NewBuffer(jsonData))
+		if err != nil {
+			return nil, fmt.Errorf("error creating request: %w", err)
+		}
 		req.Header.Set("Content-Type", "application/json")
 	}
 
