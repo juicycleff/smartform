@@ -4,7 +4,7 @@
 
 1. [Architecture Overview](#architecture-overview)
 2. [Backend Components](#backend-components)
-    - [Form Schema](#form-schema)
+    - [Form Schema](#form-props)
     - [Fields](#fields)
     - [Conditions](#conditions)
     - [Validation Rules](#validation-rules)
@@ -49,7 +49,7 @@ SmartForm follows a clean, layered architecture that separates form definition, 
 The `FormSchema` is the root object that defines a form. It contains metadata about the form and a collection of fields.
 
 ```go
-// Create a new form schema
+// Create a new form props
 form := smartform.NewForm("contact", "Contact Us Form")
     .Description("Send us your feedback or questions")
     .Property("submitLabel", "Send Message")
@@ -199,7 +199,7 @@ The `APIHandler` provides HTTP endpoints for rendering forms, fetching options, 
 // Create an API handler
 handler := smartform.NewAPIHandler()
 
-// Register a form schema
+// Register a form props
 handler.RegisterSchema(myForm)
 
 // Set up routes on an HTTP server
@@ -209,7 +209,7 @@ handler.SetupRoutes(mux)
 
 API endpoints:
 - `GET /api/forms`: List all available forms
-- `GET /api/forms/{formId}`: Get a specific form schema
+- `GET /api/forms/{formId}`: Get a specific form props
 - `GET /api/options/{formId}/{fieldId}`: Get options for a field
 - `POST /api/validate/{formId}`: Validate form data
 - `POST /api/submit/{formId}`: Submit form data
@@ -262,20 +262,20 @@ import { SmartForm, useSmartForm } from '@xraph/smartform-react';
 
 function MyFormComponent() {
   const { formState, errors, handleChange, handleSubmit } = useSmartForm();
-  const [schema, setSchema] = useState(null);
+  const [props, setSchema] = useState(null);
 
   useEffect(() => {
-    // Fetch the form schema from the server
+    // Fetch the form props from the server
     fetch('/api/forms/myForm')
       .then(res => res.json())
       .then(data => setSchema(data));
   }, []);
 
-  if (!schema) return <div>Loading...</div>;
+  if (!props) return <div>Loading...</div>;
 
   return (
     <SmartForm
-      schema={schema}
+      props={props}
       state={formState}
       errors={errors}
       onChange={handleChange}

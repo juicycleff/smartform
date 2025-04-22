@@ -78,7 +78,7 @@ func main() {
 			.Build()
 		.Build()
 
-	// Register the form schema
+	// Register the form props
 	handler.RegisterSchema(contactForm)
 
 	// Set up routes
@@ -101,10 +101,10 @@ function ContactFormPage() {
   const { formState, errors, handleSubmit } = useSmartForm();
 
   useEffect(() => {
-    // Fetch the form schema from the server
+    // Fetch the form props from the server
     fetch('/api/forms/contact')
       .then(res => res.json())
-      .then(schema => setFormSchema(schema));
+      .then(props => setFormSchema(props));
   }, []);
 
   const onSubmit = async (data) => {
@@ -125,7 +125,7 @@ function ContactFormPage() {
     <div className="container">
       <h1>Contact Us</h1>
       <SmartForm 
-        schema={formSchema} 
+        props={formSchema} 
         onSubmit={handleSubmit(onSubmit)} 
         errors={errors}
       />
@@ -140,7 +140,7 @@ export default ContactFormPage;
 
 ### Form Schema
 
-A form schema defines the structure and behavior of a form, including its fields, validation rules, and conditional logic.
+A form props defines the structure and behavior of a form, including its fields, validation rules, and conditional logic.
 
 ### Fields
 

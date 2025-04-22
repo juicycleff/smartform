@@ -16,6 +16,14 @@ func (vb *ValidationBuilder) Required(message string) *ValidationRule {
 	}
 }
 
+func (vb *ValidationBuilder) RequiredIf(condition *Condition, message string) *ValidationRule {
+	return &ValidationRule{
+		Type:       ValidationTypeRequiredIf,
+		Message:    message,
+		Parameters: condition,
+	}
+}
+
 // MinLength creates a minimum length validation rule
 func (vb *ValidationBuilder) MinLength(min float64, message string) *ValidationRule {
 	return &ValidationRule{

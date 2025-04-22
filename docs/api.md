@@ -36,7 +36,7 @@ AddField(field *Field) *FormBuilder
 // Add multiple fields to the form
 AddFields(fields ...*Field) *FormBuilder
 
-// Build and return the form schema
+// Build and return the form props
 Build() *FormSchema
 ```
 
@@ -744,10 +744,10 @@ The `APIHandler` provides HTTP endpoints for form management.
 // Create a new API handler
 NewAPIHandler() *APIHandler
 
-// Register a form schema
-RegisterSchema(schema *FormSchema)
+// Register a form props
+RegisterSchema(props *FormSchema)
 
-// Get a schema by ID
+// Get a props by ID
 GetSchema(id string) (*FormSchema, bool)
 
 // Set the dynamic function service
@@ -795,7 +795,7 @@ The `APIHandler` sets up the following HTTP endpoints:
 ### Form Management
 
 - `GET /api/forms`: List all available forms
-- `GET /api/forms/{formId}`: Get a specific form schema
+- `GET /api/forms/{formId}`: Get a specific form props
 
 ### Field Options
 
@@ -825,7 +825,7 @@ The SmartForm React library provides components and hooks for rendering and mana
 ```tsx
 // Render a form
 <SmartForm
-  schema={schema}           // Form schema
+  props={props}           // Form props
   state={formState}         // Form state
   errors={errors}           // Validation errors
   onChange={handleChange}   // Change handler
@@ -835,7 +835,7 @@ The SmartForm React library provides components and hooks for rendering and mana
 
 // Render a single field
 <SmartField
-  field={field}             // Field schema
+  field={field}             // Field props
   value={value}             // Field value
   error={error}             // Field error
   onChange={handleChange}   // Change handler
@@ -864,10 +864,10 @@ const {
   handleSubmit      // Submit handler
 } = useSmartForm(options);
 
-// Hook for fetching a form schema
+// Hook for fetching a form props
 const {
-  schema,          // Form schema
-  isLoading,       // Whether the schema is loading
+  props,          // Form props
+  isLoading,       // Whether the props is loading
   error            // Error if fetching failed
 } = useFormSchema(formId);
 

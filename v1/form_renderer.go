@@ -54,6 +54,11 @@ func (fr *FormRenderer) copyFieldWithContext(field *Field, context map[string]in
 		Nested:          []*Field{},
 	}
 
+	// Handle requiredIf condition
+	if field.RequiredIf != nil {
+		fieldCopy.RequiredIf = fr.copyCondition(field.RequiredIf)
+	}
+
 	// Copy validation rules
 	for i, rule := range field.ValidationRules {
 		fieldCopy.ValidationRules[i] = &ValidationRule{

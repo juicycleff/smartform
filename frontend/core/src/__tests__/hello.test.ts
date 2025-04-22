@@ -1,11 +1,11 @@
-import { hello } from "../hello";
+import { types } from "../index";
 
 describe("hello", () => {
   it("should return hello with the given name", () => {
-    expect(hello("John")).toBe("Hello, John!");
+    expect(types("John")).toBe("Hello, John!");
   });
 
   it("should return hello world when no name is given", () => {
-    expect(hello()).toBe("Hello, World!");
+    expect(types()).toBe("Hello, World!");
   });
 });

@@ -7,5 +7,7 @@ module.exports = {
     ecmaVersion: 2020,
     sourceType: "module"
   },
-  rules: {}
+  rules: {
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
 };

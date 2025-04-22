@@ -272,7 +272,9 @@ func (os *OptionService) replaceContextVariables(input string, context map[strin
 
 // AuthService handles authentication for API integrations
 type AuthService struct {
-	tokens map[string]string
+	tokens     map[string]string
+	jwtTokens  map[string]string
+	samlTokens map[string]string
 }
 
 // NewAuthService creates a new authentication service
@@ -309,4 +311,40 @@ func (as *AuthService) GetToken(serviceID string) (string, bool) {
 // SetToken stores a token for a service
 func (as *AuthService) SetToken(serviceID, token string) {
 	as.tokens[serviceID] = token
+}
+
+// AuthenticateJWT performs JWT authentication
+func (as *AuthService) AuthenticateJWT(jwtConfig map[string]string) (string, error) {
+	// Implementation would validate JWT parameters and generate a token
+	// This is a simplified placeholder
+	return "", fmt.Errorf("JWT authentication not implemented")
+}
+
+// AuthenticateSAML performs SAML authentication
+func (as *AuthService) AuthenticateSAML(samlConfig map[string]string) (string, error) {
+	// Implementation would handle SAML authentication flow
+	// This is a simplified placeholder
+	return "", fmt.Errorf("SAML authentication not implemented")
+}
+
+// GetJWTToken retrieves a JWT token for a service
+func (as *AuthService) GetJWTToken(serviceID string) (string, bool) {
+	token, ok := as.jwtTokens[serviceID]
+	return token, ok
+}
+
+// SetJWTToken stores a JWT token for a service
+func (as *AuthService) SetJWTToken(serviceID, token string) {
+	as.jwtTokens[serviceID] = token
+}
+
+// GetSAMLToken retrieves a SAML token for a service
+func (as *AuthService) GetSAMLToken(serviceID string) (string, bool) {
+	token, ok := as.samlTokens[serviceID]
+	return token, ok
+}
+
+// SetSAMLToken stores a SAML token for a service
+func (as *AuthService) SetSAMLToken(serviceID, token string) {
+	as.samlTokens[serviceID] = token
 }

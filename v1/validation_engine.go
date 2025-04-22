@@ -2,6 +2,7 @@ package smartform
 
 import (
 	"fmt"
+	"github.com/google/cel-go/cel"
 	"reflect"
 	"regexp"
 	"strings"
@@ -60,6 +61,17 @@ func (v *Validator) validateField(field *Field, data map[string]interface{}, pre
 		}
 	}
 
+	// Check conditional required (requiredIf)
+	if field.RequiredIf != nil && v.evaluateCondition(field.RequiredIf, data) {
+		isEmpty := v.isEmpty(value)
+		if isEmpty {
+			result.Errors = append(result.Errors, &ValidationError{
+				FieldID:  fieldPath,
+				Message:  fmt.Sprintf("%s is required based on other field values", field.Label),
+				RuleType: string(ValidationTypeRequiredIf),
+			})
+		}
+	}
 	// Skip other validations if value is empty and not required
 	if v.isEmpty(value) {
 		return
@@ -117,6 +129,15 @@ func (v *Validator) applyValidationRule(rule *ValidationRule, value interface{},
 	switch rule.Type {
 	case ValidationTypeRequired:
 		return !v.isEmpty(value), rule.Message
+
+	case ValidationTypeRequiredIf:
+		// The parameters should be a Condition
+		if condition, ok := rule.Parameters.(*Condition); ok {
+			if v.evaluateCondition(condition, data) {
+				return !v.isEmpty(value), rule.Message
+			}
+		}
+		return true, ""
 
 	case ValidationTypeMinLength:
 		if str, ok := value.(string); ok {
@@ -339,9 +360,44 @@ func (v *Validator) evaluateCondition(condition *Condition, data map[string]inte
 // evaluateExpression evaluates a custom expression against form data
 // This would typically use a specialized expression evaluation library
 func evaluateExpression(expression string, data map[string]interface{}) bool {
-	// Simplified placeholder - a real implementation would use a proper expression engine
-	// like govaluate, expr, or a custom parser
-	return true
+	// Create environment
+	env, _ := cel.NewEnv(
+		cel.Variable("data", cel.MapType(cel.StringType, cel.DynType)),
+	)
+
+	// Parse and check expression
+	parsed, issues := env.Parse(expression)
+	if issues != nil && issues.Err() != nil {
+		return false
+	}
+
+	checked, issues := env.Check(parsed)
+	if issues != nil && issues.Err() != nil {
+		return false
+	}
+
+	// Compile program
+	program, err := env.Program(checked)
+	if err != nil {
+		return false
+	}
+
+	// Evaluate with data
+	result, _, err := program.Eval(map[string]interface{}{
+		"data": data,
+	})
+
+	if err != nil {
+		return false
+	}
+
+	// Convert result to boolean
+	boolResult, ok := result.Value().(bool)
+	if !ok {
+		return false
+	}
+
+	return boolResult
 }
 
 // isEmpty checks if a value is empty

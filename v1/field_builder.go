@@ -54,6 +54,92 @@ func (fb *FieldBuilder) Property(key string, value interface{}) *FieldBuilder {
 	return fb
 }
 
+// RequiredIf sets a conditional requirement for the field
+func (fb *FieldBuilder) RequiredIf(condition *Condition) *FieldBuilder {
+	fb.field.RequiredIf = condition
+	return fb
+}
+
+// RequiredWhenEquals makes the field required when another field equals a value
+func (fb *FieldBuilder) RequiredWhenEquals(fieldId string, value interface{}) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    fieldId,
+		Operator: "eq",
+		Value:    value,
+	}
+	return fb
+}
+
+// RequiredWhenNotEquals makes the field required when another field doesn't equal a value
+func (fb *FieldBuilder) RequiredWhenNotEquals(fieldId string, value interface{}) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    fieldId,
+		Operator: "neq",
+		Value:    value,
+	}
+	return fb
+}
+
+// RequiredWhenGreaterThan makes the field required when another field is greater than a value
+func (fb *FieldBuilder) RequiredWhenGreaterThan(fieldId string, value interface{}) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    fieldId,
+		Operator: "gt",
+		Value:    value,
+	}
+	return fb
+}
+
+// RequiredWhenLessThan makes the field required when another field is less than a value
+func (fb *FieldBuilder) RequiredWhenLessThan(fieldId string, value interface{}) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    fieldId,
+		Operator: "lt",
+		Value:    value,
+	}
+	return fb
+}
+
+// RequiredWhenExists makes the field required when another field exists and is not empty
+func (fb *FieldBuilder) RequiredWhenExists(fieldId string) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:  ConditionTypeExists,
+		Field: fieldId,
+	}
+	return fb
+}
+
+// RequiredWhenAllMatch makes the field required when all specified conditions match
+func (fb *FieldBuilder) RequiredWhenAllMatch(conditions ...*Condition) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:       ConditionTypeAnd,
+		Conditions: conditions,
+	}
+	return fb
+}
+
+// RequiredWhenAnyMatch makes the field required when any of the specified conditions match
+func (fb *FieldBuilder) RequiredWhenAnyMatch(conditions ...*Condition) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:       ConditionTypeOr,
+		Conditions: conditions,
+	}
+	return fb
+}
+
+// RequiredWithExpression makes the field required based on a custom expression
+func (fb *FieldBuilder) RequiredWithExpression(expression string) *FieldBuilder {
+	fb.field.RequiredIf = &Condition{
+		Type:       ConditionTypeExpression,
+		Expression: expression,
+	}
+	return fb
+}
+
 // VisibleWhen sets visibility condition for the field
 func (fb *FieldBuilder) VisibleWhen(condition *Condition) *FieldBuilder {
 	fb.field.Visible = condition

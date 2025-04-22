@@ -1,6 +1,7 @@
 package smartform
 
 import (
+	"sort"
 	"time"
 )
 
@@ -9,8 +10,11 @@ type FormSchema struct {
 	ID          string                 `json:"id"`
 	Title       string                 `json:"title"`
 	Description string                 `json:"description,omitempty"`
+	Type        FormType               `json:"type"`               // Type of form (regular or auth)
+	AuthType    AuthStrategy           `json:"authType,omitempty"` // Auth type if this is an auth form
 	Fields      []*Field               `json:"fields"`
 	Properties  map[string]interface{} `json:"properties,omitempty"`
+	validator   *Validator
 }
 
 // Field represents a single form field with all its properties
@@ -19,6 +23,7 @@ type Field struct {
 	Type            FieldType              `json:"type"`
 	Label           string                 `json:"label"`
 	Required        bool                   `json:"required"`
+	RequiredIf      *Condition             `json:"requiredIf,omitempty"`
 	Visible         *Condition             `json:"visible,omitempty"`
 	Enabled         *Condition             `json:"enabled,omitempty"`
 	DefaultValue    interface{}            `json:"defaultValue,omitempty"`
@@ -31,43 +36,6 @@ type Field struct {
 	Nested          []*Field               `json:"nested,omitempty"` // For group, oneOf, anyOf fields
 }
 
-// FieldType represents the type of form field
-type FieldType string
-
-// Define all possible field types
-const (
-	FieldTypeText        FieldType = "text"
-	FieldTypeTextarea    FieldType = "textarea"
-	FieldTypeNumber      FieldType = "number"
-	FieldTypeSelect      FieldType = "select"
-	FieldTypeMultiSelect FieldType = "multiselect"
-	FieldTypeCheckbox    FieldType = "checkbox"
-	FieldTypeRadio       FieldType = "radio"
-	FieldTypeDate        FieldType = "date"
-	FieldTypeTime        FieldType = "time"
-	FieldTypeDateTime    FieldType = "datetime"
-	FieldTypeEmail       FieldType = "email"
-	FieldTypePassword    FieldType = "password"
-	FieldTypeFile        FieldType = "file"
-	FieldTypeImage       FieldType = "image"
-	FieldTypeGroup       FieldType = "group"
-	FieldTypeArray       FieldType = "array"
-	FieldTypeOneOf       FieldType = "oneOf"
-	FieldTypeAnyOf       FieldType = "anyOf"
-	FieldTypeSwitch      FieldType = "switch"
-	FieldTypeSlider      FieldType = "slider"
-	FieldTypeRating      FieldType = "rating"
-	FieldTypeObject      FieldType = "object"
-	FieldTypeRichText    FieldType = "richtext"
-	FieldTypeColor       FieldType = "color"
-	FieldTypeHidden      FieldType = "hidden"
-	FieldTypeSection     FieldType = "section" // For visual separation
-	FieldTypeCustom      FieldType = "custom"  // For custom components
-	FieldTypeAPI         FieldType = "api"     // For API integration
-	FieldTypeAuth        FieldType = "auth"    // For authentication fields
-	FieldTypeBranch      FieldType = "branch"  // For workflow branches
-)
-
 // Condition represents a conditional expression for field visibility or enablement
 type Condition struct {
 	Type       ConditionType `json:"type"`
@@ -78,46 +46,12 @@ type Condition struct {
 	Expression string        `json:"expression,omitempty"` // For custom expressions
 }
 
-// ConditionType defines the type of condition
-type ConditionType string
-
-// Define condition types
-const (
-	ConditionTypeSimple     ConditionType = "simple"     // Simple field comparison
-	ConditionTypeAnd        ConditionType = "and"        // Logical AND of multiple conditions
-	ConditionTypeOr         ConditionType = "or"         // Logical OR of multiple conditions
-	ConditionTypeNot        ConditionType = "not"        // Logical NOT of a condition
-	ConditionTypeExists     ConditionType = "exists"     // Field exists and is not empty
-	ConditionTypeExpression ConditionType = "expression" // Custom expression
-)
-
 // ValidationRule represents a validation constraint for a field
 type ValidationRule struct {
 	Type       ValidationType `json:"type"`
 	Message    string         `json:"message"`
 	Parameters interface{}    `json:"parameters,omitempty"` // Type-specific parameters
 }
-
-// ValidationType defines the type of validation
-type ValidationType string
-
-// Define validation types
-const (
-	ValidationTypeRequired        ValidationType = "required"
-	ValidationTypeMinLength       ValidationType = "minLength"
-	ValidationTypeMaxLength       ValidationType = "maxLength"
-	ValidationTypePattern         ValidationType = "pattern"
-	ValidationTypeMin             ValidationType = "min"
-	ValidationTypeMax             ValidationType = "max"
-	ValidationTypeEmail           ValidationType = "email"
-	ValidationTypeURL             ValidationType = "url"
-	ValidationTypeCustom          ValidationType = "custom"
-	ValidationTypeUnique          ValidationType = "unique"
-	ValidationTypeFileType        ValidationType = "fileType"
-	ValidationTypeFileSize        ValidationType = "fileSize"
-	ValidationTypeImageDimensions ValidationType = "imageDimensions"
-	ValidationTypeDependency      ValidationType = "dependency"
-)
 
 // OptionsConfig represents configuration for field options (select, multiselect, etc.)
 type OptionsConfig struct {
@@ -184,12 +118,30 @@ type CacheEntry struct {
 
 // NewFormSchema creates a new form schema instance
 func NewFormSchema(id, title string) *FormSchema {
-	return &FormSchema{
+	f := &FormSchema{
 		ID:         id,
 		Title:      title,
 		Fields:     []*Field{},
 		Properties: make(map[string]interface{}),
 	}
+
+	f.validator = NewValidator(f)
+	return f
+}
+
+// NewAuthFormSchema creates a new authentication form schema instance
+func NewAuthFormSchema(id, title string, authType AuthStrategy) *FormSchema {
+	f := &FormSchema{
+		ID:         id,
+		Title:      title,
+		Type:       FormTypeAuth,
+		AuthType:   authType,
+		Fields:     []*Field{},
+		Properties: make(map[string]interface{}),
+	}
+
+	f.validator = NewValidator(f)
+	return f
 }
 
 // AddField adds a field to the form schema
@@ -216,8 +168,123 @@ func (fs *FormSchema) FindFieldByID(id string) *Field {
 	return nil
 }
 
+// Validate validates the given form data against the schema and returns a ValidationResult containing validation outcomes.
+func (fs *FormSchema) Validate(data map[string]any) *ValidationResult {
+	return fs.validator.ValidateForm(data)
+}
+
 // SortFields sorts fields by their order property
 func (fs *FormSchema) SortFields() {
-	// Implementation uses sort.Slice in real implementation
-	// Simplified version for demonstration
+	// First, ensure all fields have an order value
+	fs.ensureFieldsHaveOrder()
+
+	// Sort top-level fields
+	sort.Slice(fs.Fields, func(i, j int) bool {
+		return fs.Fields[i].Order < fs.Fields[j].Order
+	})
+
+	// Also sort nested fields recursively
+	for _, field := range fs.Fields {
+		if field.Nested != nil && len(field.Nested) > 0 {
+			sortNestedFields(field.Nested)
+		}
+	}
+}
+
+// ensureFieldsHaveOrder assigns default order values to fields that don't have them set
+func (fs *FormSchema) ensureFieldsHaveOrder() {
+	// First pass: count fields with explicit order
+	hasExplicitOrder := 0
+	for _, field := range fs.Fields {
+		if field.Order > 0 {
+			hasExplicitOrder++
+		}
+	}
+
+	// If no fields have explicit order, assign sequential order based on definition order
+	if hasExplicitOrder == 0 {
+		for i, field := range fs.Fields {
+			field.Order = i + 1 // Start from 1 to avoid conflicts with zero values
+		}
+		return
+	}
+
+	// If some fields have explicit order, assign high order values to unordered fields
+	// to ensure they appear after explicitly ordered fields
+	maxOrder := 0
+	for _, field := range fs.Fields {
+		if field.Order > maxOrder {
+			maxOrder = field.Order
+		}
+	}
+
+	nextOrder := maxOrder + 1
+	for _, field := range fs.Fields {
+		if field.Order == 0 {
+			field.Order = nextOrder
+			nextOrder++
+		}
+	}
+
+	// Recursively ensure orders for nested fields
+	for _, field := range fs.Fields {
+		if field.Nested != nil && len(field.Nested) > 0 {
+			ensureNestedFieldsHaveOrder(field.Nested)
+		}
+	}
+}
+
+// ensureNestedFieldsHaveOrder assigns default order values to nested fields
+func ensureNestedFieldsHaveOrder(fields []*Field) {
+	// First pass: count fields with explicit order
+	hasExplicitOrder := 0
+	for _, field := range fields {
+		if field.Order > 0 {
+			hasExplicitOrder++
+		}
+	}
+
+	// If no fields have explicit order, assign sequential order based on definition order
+	if hasExplicitOrder == 0 {
+		for i, field := range fields {
+			field.Order = i + 1 // Start from 1 to avoid conflicts with zero values
+		}
+	} else {
+		// If some fields have explicit order, assign high order values to unordered fields
+		maxOrder := 0
+		for _, field := range fields {
+			if field.Order > maxOrder {
+				maxOrder = field.Order
+			}
+		}
+
+		nextOrder := maxOrder + 1
+		for _, field := range fields {
+			if field.Order == 0 {
+				field.Order = nextOrder
+				nextOrder++
+			}
+		}
+	}
+
+	// Recursively ensure orders for nested fields
+	for _, field := range fields {
+		if field.Nested != nil && len(field.Nested) > 0 {
+			ensureNestedFieldsHaveOrder(field.Nested)
+		}
+	}
+}
+
+// sortNestedFields recursively sorts nested fields by their order property
+func sortNestedFields(fields []*Field) {
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Order < fields[j].Order
+	})
+
+	// Recursively sort nested fields
+	for _, field := range fields {
+		if field.Nested != nil && len(field.Nested) > 0 {
+			sortNestedFields(field.Nested)
+		}
+	}
 }

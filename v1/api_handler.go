@@ -406,10 +406,19 @@ func (ah *APIHandler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	switch authType {
 	case "oauth":
 		token, err = ah.authService.AuthenticateOAuth(authData)
+		break
 	case "basic":
 		token, err = ah.authService.AuthenticateBasic(authData["username"], authData["password"])
+		break
 	case "apikey":
 		token, err = ah.authService.AuthenticateAPIKey(authData["apiKey"])
+		break
+	case "jwt":
+		token, err = ah.authService.AuthenticateJWT(authData)
+		break
+	case "saml":
+		token, err = ah.authService.AuthenticateSAML(authData)
+		break
 	default:
 		http.Error(w, "Unsupported auth type", http.StatusBadRequest)
 		return
@@ -423,7 +432,17 @@ func (ah *APIHandler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	// Store token for service
 	serviceID := authData["serviceId"]
 	if serviceID != "" {
-		ah.authService.SetToken(serviceID, token)
+		switch authType {
+		case "oauth", "basic", "apikey":
+			ah.authService.SetToken(serviceID, token)
+			break
+		case "jwt":
+			ah.authService.SetJWTToken(serviceID, token)
+			break
+		case "saml":
+			ah.authService.SetSAMLToken(serviceID, token)
+			break
+		}
 	}
 
 	// Return token
@@ -432,11 +451,7 @@ func (ah *APIHandler) handleAuth(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	err = json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
+	_ = json.NewEncoder(w).Encode(response)
 }
 
 // handleDynamicFunction handles requests to execute a dynamic function

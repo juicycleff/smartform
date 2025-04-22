@@ -8,18 +8,34 @@ type FormBuilder struct {
 // NewForm creates a new form builder
 func NewForm(id, title string) *FormBuilder {
 	return &FormBuilder{
-		schema: &FormSchema{
-			ID:         id,
-			Title:      title,
-			Fields:     []*Field{},
-			Properties: make(map[string]interface{}),
-		},
+		schema: NewFormSchema(id, title),
+	}
+}
+
+// NewAuthForm creates a new authentication form builder
+func NewAuthForm(id, title string, authType AuthStrategy) *FormBuilder {
+	return &FormBuilder{
+		schema: NewAuthFormSchema(id, title, authType),
 	}
 }
 
 // Description sets the form description
 func (fb *FormBuilder) Description(description string) *FormBuilder {
 	fb.schema.Description = description
+	return fb
+}
+
+// FormType sets the form type
+func (fb *FormBuilder) FormType(formType FormType) *FormBuilder {
+	fb.schema.Type = formType
+	return fb
+}
+
+// AuthType sets the authentication type for auth forms
+func (fb *FormBuilder) AuthType(authType AuthStrategy) *FormBuilder {
+	if fb.schema.Type == FormTypeAuth {
+		fb.schema.AuthType = authType
+	}
 	return fb
 }
 
@@ -227,6 +243,41 @@ func (fb *FormBuilder) APIField(id, label string) *APIFieldBuilder {
 // AuthField adds an authentication field to the form
 func (fb *FormBuilder) AuthField(id, label string) *AuthFieldBuilder {
 	field := NewAuthFieldBuilder(id, label)
+	fb.AddField(field.Build())
+	return field
+}
+
+// OAuthField adds an OAuth authentication field to the form
+func (fb *FormBuilder) OAuthField(id, label string) *OAuth2Builder {
+	field := NewOAuth2Builder(id, label)
+	fb.AddField(field.Build())
+	return field
+}
+
+// BasicAuthField adds a basic authentication field to the form
+func (fb *FormBuilder) BasicAuthField(id, label string) *BasicAuthBuilder {
+	field := NewBasicAuthBuilder(id, label)
+	fb.AddField(field.Build())
+	return field
+}
+
+// APIKeyField adds an API key authentication field to the form
+func (fb *FormBuilder) APIKeyField(id, label string) *APIKeyBuilder {
+	field := NewAPIKeyBuilder(id, label)
+	fb.AddField(field.Build())
+	return field
+}
+
+// JWTField adds a JWT authentication field to the form
+func (fb *FormBuilder) JWTField(id, label string) *JWTBuilder {
+	field := NewJWTBuilder(id, label)
+	fb.AddField(field.Build())
+	return field
+}
+
+// SAMLField adds a SAML authentication field to the form
+func (fb *FormBuilder) SAMLField(id, label string) *SAMLBuilder {
+	field := NewSAMLBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
 }
