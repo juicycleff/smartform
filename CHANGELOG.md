@@ -1,3 +1,12 @@
+# [0.4.0](https://github.com/juicycleff/smartform/compare/v0.3.0...v0.4.0) (2025-04-22)
+
+
+### Features
+
+* add pnpm lockfile for dependency management ([93d4f4b](https://github.com/juicycleff/smartform/commit/93d4f4bd2e9aaafc443b5cc9a6d837d6502733c3))
+
+
+
 # [0.3.0](https://github.com/juicycleff/smartform/compare/v0.2.0...v0.3.0) (2025-04-10)
 
 
