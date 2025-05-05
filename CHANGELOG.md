@@ -1,3 +1,12 @@
+## [0.4.1](https://github.com/juicycleff/smartform/compare/v0.4.0...v0.4.1) (2025-05-05)
+
+
+### Bug Fixes
+
+* fixed malformed form type ([9008f52](https://github.com/juicycleff/smartform/commit/9008f52f05e10d74690fd0d22026b7957c93b2bf))
+
+
+
 # [0.4.0](https://github.com/juicycleff/smartform/compare/v0.3.0...v0.4.0) (2025-04-22)
 
 
