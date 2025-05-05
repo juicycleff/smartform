@@ -123,6 +123,7 @@ func NewFormSchema(id, title string) *FormSchema {
 		Title:      title,
 		Fields:     []*Field{},
 		Properties: make(map[string]interface{}),
+		Type:       FormTypeRegular,
 	}
 
 	f.validator = NewValidator(f)
