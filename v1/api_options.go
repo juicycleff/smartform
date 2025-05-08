@@ -12,9 +12,10 @@ import (
 
 // OptionService handles fetching and processing dynamic options
 type OptionService struct {
-	client   *http.Client
-	cache    map[string]*CacheEntry
-	cacheTTL time.Duration
+	client          *http.Client
+	cache           map[string]*CacheEntry
+	cacheTTL        time.Duration
+	functionService *DynamicFunctionService
 }
 
 // NewOptionService creates a new option service
@@ -267,6 +268,123 @@ func (os *OptionService) replaceContextVariables(input string, context map[strin
 		result = strings.ReplaceAll(result, placeholder, fmt.Sprintf("%v", value))
 	}
 
+	return result
+}
+
+func (os *OptionService) SetDynamicFunctionService(service *DynamicFunctionService) {
+	os.functionService = service
+}
+
+func (os *OptionService) fetchFunctionOptions(source *DynamicSource, context map[string]interface{}) ([]*Option, error) {
+	// Check if we have direct access to the function
+	if source.DirectFunction != nil {
+		// Process parameters with context variables
+		params := os.processTemplateVars(source.Parameters, context)
+
+		// Generate cache key
+		cacheKey := os.generateCacheKey("function:"+source.FunctionName, "", params)
+
+		// Check cache
+		if entry, ok := os.cache[cacheKey]; ok {
+			if time.Since(entry.Timestamp) < os.cacheTTL {
+				var options []*Option
+				if err := json.Unmarshal(entry.Data, &options); err != nil {
+					return nil, fmt.Errorf("error unmarshaling cached options: %w", err)
+				}
+				return options, nil
+			}
+		}
+
+		// Execute the direct function
+		result, err := source.DirectFunction(params, context)
+		if err != nil {
+			return nil, fmt.Errorf("error executing direct function: %w", err)
+		}
+
+		// Convert result to options
+		options, err := convertResultToOptions(result, source.ValuePath, source.LabelPath)
+		if err != nil {
+			return nil, err
+		}
+
+		// Cache the result
+		optionsData, err := json.Marshal(options)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling options for cache: %w", err)
+		}
+
+		os.cache[cacheKey] = &CacheEntry{
+			Data:      optionsData,
+			Timestamp: time.Now(),
+		}
+
+		return options, nil
+	}
+
+	// Fall back to function service if available
+	if os.functionService == nil {
+		return nil, fmt.Errorf("function service not configured and no direct function available")
+	}
+
+	// Process parameters with context variables
+	params := os.processTemplateVars(source.Parameters, context)
+
+	// Generate cache key
+	cacheKey := os.generateCacheKey("function:"+source.FunctionName, "", params)
+
+	// Check cache
+	if entry, ok := os.cache[cacheKey]; ok {
+		if time.Since(entry.Timestamp) < os.cacheTTL {
+			var options []*Option
+			if err := json.Unmarshal(entry.Data, &options); err != nil {
+				return nil, fmt.Errorf("error unmarshaling cached options: %w", err)
+			}
+			return options, nil
+		}
+	}
+
+	// Execute the function
+	options, err := os.functionService.ExecuteFunctionForOptions(source.FunctionName, params, context)
+	if err != nil {
+		return nil, err
+	}
+
+	// Cache the result
+	optionsData, err := json.Marshal(options)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling options for cache: %w", err)
+	}
+
+	os.cache[cacheKey] = &CacheEntry{
+		Data:      optionsData,
+		Timestamp: time.Now(),
+	}
+
+	return options, nil
+}
+
+func (os *OptionService) processTemplateVars(args map[string]interface{}, formState map[string]interface{}) map[string]interface{} {
+	result := make(map[string]interface{})
+
+	for key, value := range args {
+		switch v := value.(type) {
+		case string:
+			if strings.HasPrefix(v, "${") && strings.HasSuffix(v, "}") {
+				fieldName := v[2 : len(v)-1]
+				if fieldValue, ok := formState[fieldName]; ok {
+					result[key] = fieldValue
+				} else {
+					result[key] = v
+				}
+			} else {
+				result[key] = v
+			}
+		case map[string]interface{}:
+			result[key] = os.processTemplateVars(v, formState)
+		default:
+			result[key] = v
+		}
+	}
 	return result
 }
 

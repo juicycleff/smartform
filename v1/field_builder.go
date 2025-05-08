@@ -1,5 +1,10 @@
 package smartform
 
+import (
+	"fmt"
+	"time"
+)
+
 // FieldBuilder provides a fluent API for creating form fields
 type FieldBuilder struct {
 	field *Field
@@ -403,6 +408,47 @@ func (fb *FieldBuilder) WithStaticOptions(options []*Option) *FieldBuilder {
 	return fb
 }
 
+// WithDynamicFunctionOptions adds dynamic options that come directly from a function
+func (fb *FieldBuilder) WithDynamicFunctionOptions(functionNameOrFn any) *DynamicOptionsFunctionBuilder {
+	// Create a dynamic options source
+	source := &DynamicSource{
+		Type:       "function",
+		Parameters: make(map[string]interface{}),
+	}
+
+	// Check if we got a function name (string) or a direct function reference
+	switch v := functionNameOrFn.(type) {
+	case string:
+		// It's a function name (string)
+		source.FunctionName = v
+	case DynamicFunction:
+		// It's a direct function reference
+		// Generate a unique name for the function
+		uniqueName := fmt.Sprintf("direct_func_%d", time.Now().UnixNano())
+		source.FunctionName = uniqueName
+		source.DirectFunction = v
+	default:
+		// Invalid type
+		panic(fmt.Sprintf("WithDynamicFunctionOptions expects a string or DynamicFunction, got %T", functionNameOrFn))
+	}
+
+	// Create a DynamicOptionsBuilder to configure the source
+	optionsBuilder := NewOptionsBuilder().Dynamic()
+	optionsBuilder.config.DynamicSource = source
+
+	// Set the options on the field
+	fb.field.Options = optionsBuilder.Build()
+
+	// Return a builder to configure the function options
+	return &DynamicOptionsFunctionBuilder{
+		DynamicOptionsBuilder: optionsBuilder,
+		config: &DynamicFieldConfig{
+			FunctionName: source.FunctionName,
+			Arguments:    make(map[string]interface{}),
+		},
+	}
+}
+
 // WithDynamicOptions adds dynamic options to the field
 func (fb *FieldBuilder) WithDynamicOptions(source *DynamicSource) *FieldBuilder {
 	fb.field.Options = &OptionsConfig{
@@ -410,6 +456,28 @@ func (fb *FieldBuilder) WithDynamicOptions(source *DynamicSource) *FieldBuilder 
 		DynamicSource: source,
 	}
 	return fb
+}
+
+func (fb *FieldBuilder) GetOptionsFromFunction(functionName string, formState map[string]interface{}) ([]*Option, error) {
+	if fb.field.Options == nil || fb.field.Options.DynamicSource == nil {
+		return nil, fmt.Errorf("field does not have dynamic options")
+	}
+
+	// Create a source specifically for this function call
+	source := &DynamicSource{
+		Type:         "function",
+		FunctionName: functionName,
+		Parameters:   make(map[string]interface{}),
+	}
+
+	// If the field already has a dynamic source and it's a function, use its parameters
+	if fb.field.Options.DynamicSource.Type == "function" {
+		source.Parameters = fb.field.Options.DynamicSource.Parameters
+	}
+
+	// Execute the function (needs to be implemented by client)
+	// This would call a function service or router depending on implementation
+	return nil, fmt.Errorf("function execution needs to be implemented by client application")
 }
 
 // WithDynamicFunction adds a dynamic function to the field
@@ -495,20 +563,38 @@ func (dfb *DynamicFunctionBuilder) End() *FieldBuilder {
 // Now let's extend the OptionsBuilder to support dynamic functions
 
 // WithFunctionOptions configures options to come from a dynamic function
-func (dob *DynamicOptionsBuilder) WithFunctionOptions(functionName string) *DynamicOptionsFunctionBuilder {
+func (dob *DynamicOptionsBuilder) WithFunctionOptions(functionNameOrFn interface{}) *DynamicOptionsFunctionBuilder {
 	dob.config.DynamicSource.Type = "function"
 
-	// Create dynamic field config
-	config := &DynamicFieldConfig{
-		FunctionName: functionName,
-		Arguments:    make(map[string]interface{}),
+	// Check if we got a function name (string) or a direct function reference
+	switch v := functionNameOrFn.(type) {
+	case string:
+		// It's a function name (string)
+		dob.config.DynamicSource.FunctionName = v
+	case DynamicFunction:
+		// It's a direct function reference
+		// Generate a unique name for the function
+		uniqueName := fmt.Sprintf("direct_func_%d", time.Now().UnixNano())
+		dob.config.DynamicSource.FunctionName = uniqueName
+		dob.config.DynamicSource.DirectFunction = v
+	default:
+		// Invalid type
+		panic(fmt.Sprintf("WithFunctionOptions expects a string or DynamicFunction, got %T", functionNameOrFn))
 	}
 
-	// Store the config in dynamic source parameters
+	// Initialize parameters if needed
 	if dob.config.DynamicSource.Parameters == nil {
 		dob.config.DynamicSource.Parameters = make(map[string]interface{})
 	}
+
+	// Create dynamic field config
+	config := &DynamicFieldConfig{
+		FunctionName: dob.config.DynamicSource.FunctionName,
+		Arguments:    make(map[string]interface{}),
+	}
+
 	dob.config.DynamicSource.Parameters["dynamicFunction"] = config
+	dob.config.DynamicSource.FunctionConfig = config
 
 	// Return a builder for configuring the dynamic function
 	return &DynamicOptionsFunctionBuilder{
@@ -525,37 +611,73 @@ type DynamicOptionsFunctionBuilder struct {
 
 // WithArgument adds an argument to the dynamic function
 func (dofb *DynamicOptionsFunctionBuilder) WithArgument(name string, value interface{}) *DynamicOptionsFunctionBuilder {
+	// Set in the config for backward compatibility
 	dofb.config.Arguments[name] = value
+
+	// Also set directly in the dynamic source parameters
+	dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters[name] = value
+
 	return dofb
 }
 
 // WithArguments adds multiple arguments to the dynamic function
 func (dofb *DynamicOptionsFunctionBuilder) WithArguments(args map[string]interface{}) *DynamicOptionsFunctionBuilder {
+	// Set in the config for backward compatibility
 	for name, value := range args {
 		dofb.config.Arguments[name] = value
 	}
+
+	// Also set directly in the dynamic source parameters
+	for name, value := range args {
+		dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters[name] = value
+	}
+
 	return dofb
 }
 
 // WithFieldReference adds a field reference as an argument
 func (dofb *DynamicOptionsFunctionBuilder) WithFieldReference(argName string, fieldId string) *DynamicOptionsFunctionBuilder {
-	dofb.config.Arguments[argName] = "${" + fieldId + "}"
+	fieldRef := "${" + fieldId + "}"
+
+	// Set in the config for backward compatibility
+	dofb.config.Arguments[argName] = fieldRef
+
+	// Also set directly in the dynamic source parameters
+	dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters[argName] = fieldRef
+
 	return dofb
 }
 
 // WithTransformer adds a data transformer to the dynamic function
 func (dofb *DynamicOptionsFunctionBuilder) WithTransformer(transformerName string) *DynamicOptionsFunctionBuilder {
+	// Set in the config for backward compatibility
 	dofb.config.TransformerName = transformerName
 	dofb.config.TransformerParams = make(map[string]interface{})
+
+	// Also set in the dynamic source
+	dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformer"] = transformerName
+	dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformerParams"] = make(map[string]interface{})
+
 	return dofb
 }
 
 // WithTransformerParam adds a parameter to the transformer
 func (dofb *DynamicOptionsFunctionBuilder) WithTransformerParam(name string, value interface{}) *DynamicOptionsFunctionBuilder {
+	// Set in the config for backward compatibility
 	if dofb.config.TransformerParams == nil {
 		dofb.config.TransformerParams = make(map[string]interface{})
 	}
 	dofb.config.TransformerParams[name] = value
+
+	// Also set in the dynamic source
+	if dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformerParams"] == nil {
+		dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformerParams"] = make(map[string]interface{})
+	}
+
+	transformerParams, _ := dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformerParams"].(map[string]interface{})
+	transformerParams[name] = value
+	dofb.DynamicOptionsBuilder.config.DynamicSource.Parameters["transformerParams"] = transformerParams
+
 	return dofb
 }
 
@@ -600,8 +722,6 @@ func (dofb *DynamicOptionsFunctionBuilder) WithPagination(defaultLimit int) *Dyn
 func (dofb *DynamicOptionsFunctionBuilder) End() *DynamicOptionsBuilder {
 	return dofb.DynamicOptionsBuilder
 }
-
-// Now let's add extensions for specific field types that can use dynamic functions
 
 // DynamicValue adds a dynamic value calculation to the field
 func (fb *FieldBuilder) DynamicValue(functionName string) *DynamicFunctionBuilder {

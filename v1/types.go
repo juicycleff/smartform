@@ -15,6 +15,9 @@ type FormSchema struct {
 	Fields      []*Field               `json:"fields"`
 	Properties  map[string]interface{} `json:"properties,omitempty"`
 	validator   *Validator
+
+	// Map of registered functions - not serialized
+	functions map[string]DynamicFunction `json:"-"`
 }
 
 // Field represents a single form field with all its properties
@@ -80,14 +83,20 @@ type Option struct {
 
 // DynamicSource defines where to get dynamic options from
 type DynamicSource struct {
-	Type       string                 `json:"type"` // api, function, etc.
-	Endpoint   string                 `json:"endpoint,omitempty"`
-	Method     string                 `json:"method,omitempty"`
-	Headers    map[string]string      `json:"headers,omitempty"`
-	Parameters map[string]interface{} `json:"parameters,omitempty"`
-	ValuePath  string                 `json:"valuePath,omitempty"` // JSON path to value in response
-	LabelPath  string                 `json:"labelPath,omitempty"` // JSON path to label in response
-	RefreshOn  []string               `json:"refreshOn,omitempty"` // Fields that trigger refresh
+	Type           string                 `json:"type"` // api, function, etc.
+	Endpoint       string                 `json:"endpoint,omitempty"`
+	Method         string                 `json:"method,omitempty"`
+	Headers        map[string]string      `json:"headers,omitempty"`
+	Parameters     map[string]interface{} `json:"parameters,omitempty"`
+	ValuePath      string                 `json:"valuePath,omitempty"` // JSON path to value in response
+	LabelPath      string                 `json:"labelPath,omitempty"` // JSON path to label in response
+	RefreshOn      []string               `json:"refreshOn,omitempty"` // Fields that trigger refresh
+	FunctionName   string                 `json:"functionName,omitempty"`
+	FunctionConfig *DynamicFieldConfig    `json:"functionConfig,omitempty"`
+
+	// This won't be serialized to JSON but allows passing a direct function reference
+	// when creating the options - won't survive serialization
+	DirectFunction DynamicFunction `json:"-"`
 }
 
 // OptionsDependency defines how options depend on other field values

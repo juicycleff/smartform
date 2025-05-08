@@ -341,6 +341,21 @@ func (dfs *DynamicFunctionService) sortByCustomField(options []*Option, field st
 	})
 }
 
+func (dfs *DynamicFunctionService) ExecuteFunctionForOptions(
+	functionName string,
+	args map[string]interface{},
+	formState map[string]interface{},
+) ([]*Option, error) {
+	// Execute the function
+	result, err := dfs.ExecuteFunction(functionName, args, formState)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the result to options
+	return dfs.convertResultToOptions(result)
+}
+
 // SortOptionsBy sorts options using the provided less function
 func SortOptionsBy(options []*Option, less func(a, b *Option) bool) {
 	// Simple bubble sort (for small lists it's fine)

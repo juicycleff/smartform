@@ -113,6 +113,8 @@ func (ah *APIHandler) SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/api/function/", ah.handleDynamicFunction)
 	mux.HandleFunc("/api/field/dynamic/", ah.handleDynamicField)
 	mux.HandleFunc("/api/options/dynamic/", ah.handleDynamicOptions)
+	mux.HandleFunc("/api/options/function/", ah.handleFunctionOptions)
+
 }
 
 // handleForms handles requests to list all forms
@@ -184,6 +186,69 @@ func (ah *APIHandler) handleForm(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(jsonString))
 }
 
+// New handler for function-based options
+func (ah *APIHandler) handleFunctionOptions(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Extract form ID and function name from path
+	path := r.URL.Path
+	parts := splitPath(path)
+	if len(parts) < 4 {
+		http.Error(w, "Form ID and function name are required", http.StatusBadRequest)
+		return
+	}
+
+	formID := parts[3]
+	functionName := parts[4]
+
+	// Get schema
+	_, ok := ah.GetSchema(formID)
+	if !ok {
+		http.Error(w, "Form not found", http.StatusNotFound)
+		return
+	}
+
+	// Parse request body
+	var request struct {
+		Parameters map[string]interface{} `json:"parameters"`
+		FormState  map[string]interface{} `json:"formState"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check if dynamic function service is configured
+	if ah.dynamicFunctionService == nil {
+		http.Error(w, "Dynamic function service not configured", http.StatusInternalServerError)
+		return
+	}
+
+	// Execute the function and convert to options
+	options, err := ah.dynamicFunctionService.ExecuteFunctionForOptions(
+		functionName,
+		request.Parameters,
+		request.FormState,
+	)
+
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error executing function: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Return the options
+	w.Header().Set("Content-Type", "application/json")
+	err = json.NewEncoder(w).Encode(options)
+	if err != nil {
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+}
+
 // handleOptions handles requests for field options
 func (ah *APIHandler) handleOptions(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -242,7 +307,19 @@ func (ah *APIHandler) handleOptions(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Dynamic source not configured", http.StatusInternalServerError)
 			return
 		}
-		options, err = ah.optionService.GetDynamicOptions(field.Options.DynamicSource, context)
+
+		// Check if it's a function type
+		if field.Options.DynamicSource.Type == "function" {
+			options, err = ah.getOptionsFromFunction(
+				field.Options.DynamicSource.FunctionName,
+				field.Options.DynamicSource.Parameters,
+				context,
+			)
+		} else {
+			// Default to API type
+			options, err = ah.optionService.GetDynamicOptions(field.Options.DynamicSource, context)
+		}
+
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error fetching dynamic options: %v", err), http.StatusInternalServerError)
 			return
@@ -671,4 +748,15 @@ func (ah *APIHandler) handleDynamicOptions(w http.ResponseWriter, r *http.Reques
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+}
+
+// Update the getOptionsFromFunction method in APIHandler
+func (ah *APIHandler) getOptionsFromFunction(functionName string, params map[string]interface{}, context map[string]interface{}) ([]*Option, error) {
+	// Check if dynamic function service is configured
+	if ah.dynamicFunctionService == nil {
+		return nil, fmt.Errorf("dynamic function service not configured")
+	}
+
+	// Execute the function and convert to options
+	return ah.dynamicFunctionService.ExecuteFunctionForOptions(functionName, params, context)
 }
