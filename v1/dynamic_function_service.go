@@ -353,7 +353,7 @@ func (dfs *DynamicFunctionService) ExecuteFunctionForOptions(
 	}
 
 	// Convert the result to options
-	return dfs.convertResultToOptions(result)
+	return convertResultToOptions(result)
 }
 
 // SortOptionsBy sorts options using the provided less function

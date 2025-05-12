@@ -36,7 +36,7 @@ func (fs *FormSchema) GetOptionsFromFunction(source *DynamicSource, formState ma
 	}
 
 	// Convert result to options
-	return convertResultToOptions(result, source.ValuePath, source.LabelPath)
+	return convertResultToOptions(result)
 }
 
 // RegisterFunction function to register a function directly on the schema
@@ -107,7 +107,7 @@ func (fs *FormSchema) findFieldWithFunctionNameInNested(field *Field, functionNa
 }
 
 // Helper function to convert function result to options
-func convertResultToOptions(result interface{}, valuePath, labelPath string) ([]*Option, error) {
+func convertResultToOptions(result interface{}) ([]*Option, error) {
 	// Handle different result types
 	switch v := result.(type) {
 	case []*Option:

@@ -302,7 +302,7 @@ func (os *OptionService) fetchFunctionOptions(source *DynamicSource, context map
 		}
 
 		// Convert result to options
-		options, err := convertResultToOptions(result, source.ValuePath, source.LabelPath)
+		options, err := convertResultToOptions(result)
 		if err != nil {
 			return nil, err
 		}
