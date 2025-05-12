@@ -1,5 +1,10 @@
 package smartform
 
+import (
+	"fmt"
+	"strings"
+)
+
 // FormBuilder provides a fluent API for creating form schemas
 type FormBuilder struct {
 	schema *FormSchema
@@ -298,5 +303,56 @@ func (fb *FormBuilder) CustomField(id, label string) *CustomFieldBuilder {
 
 // Build finalizes and returns the form schema
 func (fb *FormBuilder) Build() *FormSchema {
+	fb.registerDynamicFunctions()
+
 	return fb.schema
+}
+
+func (fb *FormBuilder) registerDynamicFunctions() {
+	for _, field := range fb.schema.Fields {
+		fb.registerFieldDynamicFunctions(field, "")
+	}
+}
+
+// Register dynamic functions for a single field and its nested fields
+func (fb *FormBuilder) registerFieldDynamicFunctions(field *Field, path string) {
+	// Build the current field's path
+	fieldPath := field.ID
+	if path != "" {
+		fieldPath = path + "." + field.ID
+	}
+
+	fmt.Println("Registering dynamic functions for field", field.ID)
+	// Check if the field has dynamic options
+	if field.Options != nil && field.Options.Type == OptionsTypeDynamic &&
+		field.Options.DynamicSource != nil && field.Options.DynamicSource.Type == "function" {
+
+		dynamicSource := field.Options.DynamicSource
+		fmt.Println("Registering dynamic functions for field", field.ID, "with source", dynamicSource.FunctionName)
+
+		// If there's a DirectFunction, register it with a path-based name
+		if dynamicSource.DirectFunction != nil {
+			// Use the field ID as the function name (with path prefix)
+			functionName := fieldPath
+
+			// If there's already an explicitly set function name, use that instead
+			if dynamicSource.FunctionName != "" &&
+				!strings.HasPrefix(dynamicSource.FunctionName, "direct_func_") {
+				functionName = dynamicSource.FunctionName
+			} else {
+				// Update the function name in the dynamic source
+				dynamicSource.FunctionName = functionName
+			}
+
+			// Register the function with the schema
+			fb.schema.RegisterFunction(functionName, dynamicSource.DirectFunction)
+		}
+	}
+
+	// Process nested fields recursively
+	if field.Nested != nil {
+		for _, nestedField := range field.Nested {
+			fb.registerFieldDynamicFunctions(nestedField, fieldPath)
+		}
+	}
 }

@@ -61,6 +61,15 @@ func (fs *FormSchema) ExecuteDynamicFunction(functionName string, args map[strin
 				return field.Options.DynamicSource.DirectFunction(args, formState)
 			}
 		}
+
+		// Look for the function in all fields, not just matching name
+		for _, f := range fs.Fields {
+			if f.Options != nil && f.Options.DynamicSource != nil &&
+				f.Options.DynamicSource.FunctionName == functionName &&
+				f.Options.DynamicSource.DirectFunction != nil {
+				return f.Options.DynamicSource.DirectFunction(args, formState)
+			}
+		}
 	}
 
 	// Fall back to implementation by client application

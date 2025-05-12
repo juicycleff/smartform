@@ -578,8 +578,23 @@ func (dob *DynamicOptionsBuilder) WithFunctionOptions(functionNameOrFn interface
 		dob.config.DynamicSource.FunctionName = uniqueName
 		dob.config.DynamicSource.DirectFunction = v
 	default:
-		// Invalid type
-		panic(fmt.Sprintf("WithFunctionOptions expects a string or DynamicFunction, got %T", functionNameOrFn))
+		// For any other function type, we need a wrapper
+		uniqueName := fmt.Sprintf("wrapped_func_%d", time.Now().UnixNano())
+		dob.config.DynamicSource.FunctionName = uniqueName
+
+		// Create a wrapper function that will pass along the args without making
+		// assumptions about the specific parameter types
+		dob.config.DynamicSource.DirectFunction = func(args map[string]interface{}, formState map[string]interface{}) (interface{}, error) {
+			// Store the actual function in a context field that the ExecuteFieldOptions method can use
+			args["_actualFunction"] = functionNameOrFn
+
+			// Return a placeholder indicating that this is a special function
+			// The actual execution happens in ExecuteFieldOptions
+			return map[string]interface{}{
+				"_type": "external_function",
+				"_name": uniqueName,
+			}, nil
+		}
 	}
 
 	// Initialize parameters if needed
