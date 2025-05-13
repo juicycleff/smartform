@@ -37,6 +37,7 @@ type Field struct {
 	Order           int                    `json:"order"`
 	Options         *OptionsConfig         `json:"options,omitempty"`
 	Nested          []*Field               `json:"nested,omitempty"` // For group, oneOf, anyOf fields
+	Multiline       bool                   `json:"multiline,omitempty"`
 }
 
 // Condition represents a conditional expression for field visibility or enablement

@@ -41,6 +41,12 @@ func (fb *FieldBuilder) HelpText(helpText string) *FieldBuilder {
 	return fb
 }
 
+// Multiline sets the field multiline
+func (fb *FieldBuilder) Multiline(multiline bool) *FieldBuilder {
+	fb.field.Multiline = multiline
+	return fb
+}
+
 // DefaultValue sets the field default value
 func (fb *FieldBuilder) DefaultValue(value interface{}) *FieldBuilder {
 	fb.field.DefaultValue = value

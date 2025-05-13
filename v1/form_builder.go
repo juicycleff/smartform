@@ -1,7 +1,6 @@
 package smartform
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -322,13 +321,11 @@ func (fb *FormBuilder) registerFieldDynamicFunctions(field *Field, path string) 
 		fieldPath = path + "." + field.ID
 	}
 
-	fmt.Println("Registering dynamic functions for field", field.ID)
 	// Check if the field has dynamic options
 	if field.Options != nil && field.Options.Type == OptionsTypeDynamic &&
 		field.Options.DynamicSource != nil && field.Options.DynamicSource.Type == "function" {
 
 		dynamicSource := field.Options.DynamicSource
-		fmt.Println("Registering dynamic functions for field", field.ID, "with source", dynamicSource.FunctionName)
 
 		// If there's a DirectFunction, register it with a path-based name
 		if dynamicSource.DirectFunction != nil {
