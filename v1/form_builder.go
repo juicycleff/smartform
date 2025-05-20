@@ -255,6 +255,10 @@ func (fb *FormBuilder) AuthField(id, label string) *AuthFieldBuilder {
 
 // OAuthField adds an OAuth authentication field to the form
 func (fb *FormBuilder) OAuthField(id, label string) *OAuth2Builder {
+	if id == "" {
+		id = "oauth"
+	}
+
 	field := NewOAuth2Builder(id, label)
 	fb.AddField(field.Build())
 	return field
@@ -262,6 +266,9 @@ func (fb *FormBuilder) OAuthField(id, label string) *OAuth2Builder {
 
 // BasicAuthField adds a basic authentication field to the form
 func (fb *FormBuilder) BasicAuthField(id, label string) *BasicAuthBuilder {
+	if id == "" {
+		id = "basic"
+	}
 	field := NewBasicAuthBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
@@ -269,6 +276,10 @@ func (fb *FormBuilder) BasicAuthField(id, label string) *BasicAuthBuilder {
 
 // APIKeyField adds an API key authentication field to the form
 func (fb *FormBuilder) APIKeyField(id, label string) *APIKeyBuilder {
+	if id == "" {
+		id = "key"
+	}
+
 	field := NewAPIKeyBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
@@ -276,6 +287,9 @@ func (fb *FormBuilder) APIKeyField(id, label string) *APIKeyBuilder {
 
 // JWTField adds a JWT authentication field to the form
 func (fb *FormBuilder) JWTField(id, label string) *JWTBuilder {
+	if id == "" {
+		id = "jwt"
+	}
 	field := NewJWTBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
@@ -283,6 +297,9 @@ func (fb *FormBuilder) JWTField(id, label string) *JWTBuilder {
 
 // SAMLField adds a SAML authentication field to the form
 func (fb *FormBuilder) SAMLField(id, label string) *SAMLBuilder {
+	if id == "" {
+		id = "saml"
+	}
 	field := NewSAMLBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
@@ -297,6 +314,9 @@ func (fb *FormBuilder) BranchField(id, label string) *BranchFieldBuilder {
 
 // CustomField Custom adds a custom field to the form
 func (fb *FormBuilder) CustomField(id, label string) *CustomFieldBuilder {
+	if id == "" {
+		id = "custom"
+	}
 	field := NewCustomFieldBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
