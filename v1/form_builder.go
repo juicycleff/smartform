@@ -2,6 +2,8 @@ package smartform
 
 import (
 	"strings"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 // FormBuilder provides a fluent API for creating form schemas
@@ -298,6 +300,18 @@ func (fb *FormBuilder) CustomField(id, label string) *CustomFieldBuilder {
 	field := NewCustomFieldBuilder(id, label)
 	fb.AddField(field.Build())
 	return field
+}
+
+// RegisterVariable registers a variable in the form
+func (fb *FormBuilder) RegisterVariable(name string, value interface{}) *FormBuilder {
+	fb.schema.RegisterVariable(name, value)
+	return fb
+}
+
+// RegisterVariableFunction registers a function in the form
+func (fb *FormBuilder) RegisterVariableFunction(name string, fn template.TemplateFunction) *FormBuilder {
+	fb.schema.RegisterVariableFunction(name, fn)
+	return fb
 }
 
 // Build finalizes and returns the form schema

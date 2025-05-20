@@ -3,16 +3,23 @@ package smartform
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 // FormRenderer converts form schemas to JSON representations for the frontend
 type FormRenderer struct {
-	schema *FormSchema
+	schema         *FormSchema
+	templateEngine *template.TemplateEngine
 }
 
 // NewFormRenderer creates a new form renderer
 func NewFormRenderer(schema *FormSchema) *FormRenderer {
-	return &FormRenderer{schema: schema}
+	return &FormRenderer{
+		schema:         schema,
+		templateEngine: template.NewTemplateEngine(),
+	}
 }
 
 // RenderJSON converts the form schema to a JSON string
@@ -52,6 +59,39 @@ func (fr *FormRenderer) copyFieldWithContext(field *Field, context map[string]in
 		ValidationRules: make([]*ValidationRule, len(field.ValidationRules)),
 		Properties:      make(map[string]interface{}),
 		Nested:          []*Field{},
+	}
+
+	fieldCopy.Label = fr.evaluateTemplateString(field.Label, context)
+	fieldCopy.Placeholder = fr.evaluateTemplateString(field.Placeholder, context)
+	fieldCopy.HelpText = fr.evaluateTemplateString(field.HelpText, context)
+
+	// Handle DefaultWhen conditions
+	if field.DefaultWhen != nil && len(field.DefaultWhen) > 0 {
+		validator := NewValidator(fr.schema)
+		for _, defaultWhen := range field.DefaultWhen {
+			if validator.evaluateCondition(defaultWhen.Condition, context) {
+				// Evaluate the default value if it's a template expression
+				if strValue, ok := defaultWhen.Value.(string); ok && fr.containsTemplateExpression(strValue) {
+					evaluatedValue, err := fr.templateEngine.EvaluateExpression(strValue, context)
+					if err == nil {
+						fieldCopy.DefaultValue = evaluatedValue
+					} else {
+						fieldCopy.DefaultValue = defaultWhen.Value
+					}
+				} else {
+					fieldCopy.DefaultValue = defaultWhen.Value
+				}
+				break
+			}
+		}
+	} else if field.DefaultValue != nil {
+		// Evaluate the default value if it's a template expression
+		if strValue, ok := field.DefaultValue.(string); ok && fr.containsTemplateExpression(strValue) {
+			evaluatedValue, err := fr.templateEngine.EvaluateExpression(strValue, context)
+			if err == nil {
+				fieldCopy.DefaultValue = evaluatedValue
+			}
+		}
 	}
 
 	// Handle requiredIf condition
@@ -278,4 +318,22 @@ func (fr *FormRenderer) copyOptionsWithContext(options *OptionsConfig, context m
 func (fr *FormRenderer) getValueFromContext(context map[string]interface{}, path string) interface{} {
 	validator := NewValidator(fr.schema)
 	return validator.getValueByPath(context, path)
+}
+
+// evaluateTemplateString evaluates a string that may contain template expressions
+func (fr *FormRenderer) evaluateTemplateString(input string, context map[string]interface{}) string {
+	if input == "" || !fr.containsTemplateExpression(input) {
+		return input
+	}
+
+	result, err := fr.templateEngine.EvaluateExpressionAsString(input, context)
+	if err != nil {
+		return input
+	}
+	return result
+}
+
+// containsTemplateExpression checks if a string contains template expressions
+func (fr *FormRenderer) containsTemplateExpression(input string) bool {
+	return strings.Contains(input, "${")
 }

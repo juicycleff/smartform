@@ -3,18 +3,21 @@ package smartform
 import (
 	"sort"
 	"time"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 // FormSchema represents the entire form structure
 type FormSchema struct {
-	ID          string                 `json:"id"`
-	Title       string                 `json:"title"`
-	Description string                 `json:"description,omitempty"`
-	Type        FormType               `json:"type"`               // Type of form (regular or auth)
-	AuthType    AuthStrategy           `json:"authType,omitempty"` // Auth type if this is an auth form
-	Fields      []*Field               `json:"fields"`
-	Properties  map[string]interface{} `json:"properties,omitempty"`
-	validator   *Validator
+	ID               string                 `json:"id"`
+	Title            string                 `json:"title"`
+	Description      string                 `json:"description,omitempty"`
+	Type             FormType               `json:"type"`               // Type of form (regular or auth)
+	AuthType         AuthStrategy           `json:"authType,omitempty"` // Auth type if this is an auth form
+	Fields           []*Field               `json:"fields"`
+	Properties       map[string]interface{} `json:"properties,omitempty"`
+	validator        *Validator
+	variableRegistry *template.VariableRegistry `json:"-"`
 
 	// Map of registered functions - not serialized
 	functions map[string]DynamicFunction `json:"-"`
@@ -30,6 +33,7 @@ type Field struct {
 	Visible         *Condition             `json:"visible,omitempty"`
 	Enabled         *Condition             `json:"enabled,omitempty"`
 	DefaultValue    interface{}            `json:"defaultValue,omitempty"`
+	DefaultWhen     []*DefaultWhen         `json:"defaultWhen,omitempty"`
 	Placeholder     string                 `json:"placeholder,omitempty"`
 	HelpText        string                 `json:"helpText,omitempty"`
 	ValidationRules []*ValidationRule      `json:"validationRules,omitempty"`
@@ -129,11 +133,12 @@ type CacheEntry struct {
 // NewFormSchema creates a new form schema instance
 func NewFormSchema(id, title string) *FormSchema {
 	f := &FormSchema{
-		ID:         id,
-		Title:      title,
-		Fields:     []*Field{},
-		Properties: make(map[string]interface{}),
-		Type:       FormTypeRegular, // Set default form type
+		ID:               id,
+		Title:            title,
+		Fields:           []*Field{},
+		Properties:       make(map[string]interface{}),
+		Type:             FormTypeRegular, // Set default form type
+		variableRegistry: template.NewVariableRegistry(),
 	}
 
 	f.validator = NewValidator(f)
@@ -177,6 +182,23 @@ func (fs *FormSchema) FindFieldByID(id string) *Field {
 		}
 	}
 	return nil
+}
+
+// RegisterVariable registers a variable in the form's registry
+func (fs *FormSchema) RegisterVariable(name string, value interface{}) *FormSchema {
+	fs.variableRegistry.RegisterVariable(name, value)
+	return fs
+}
+
+// RegisterVariableFunction registers a function in the form's registry
+func (fs *FormSchema) RegisterVariableFunction(name string, fn template.TemplateFunction) *FormSchema {
+	fs.variableRegistry.RegisterFunction(name, fn)
+	return fs
+}
+
+// GetVariableRegistry returns the form's variable registry
+func (fs *FormSchema) GetVariableRegistry() *template.VariableRegistry {
+	return fs.variableRegistry
 }
 
 // Validate validates the given form data against the schema and returns a ValidationResult containing validation outcomes.

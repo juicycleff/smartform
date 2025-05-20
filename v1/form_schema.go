@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 func (fs *FormSchema) GetOptionsFromFunction(source *DynamicSource, formState map[string]interface{}) ([]*Option, error) {
@@ -37,6 +39,49 @@ func (fs *FormSchema) GetOptionsFromFunction(source *DynamicSource, formState ma
 
 	// Convert result to options
 	return convertResultToOptions(result)
+}
+
+func (fs *FormSchema) GetTemplateExpressionSuggestions(partialExpr string) []*template.VariableSuggestion {
+	templateEngine := template.NewTemplateEngine()
+	templateEngine.SetVariableRegistry(fs.variableRegistry)
+	return templateEngine.GetExpressionSuggestions(partialExpr)
+}
+
+// GetTemplateExpressionSuggestions Add this method to FormBuilder
+func (fb *FormBuilder) GetTemplateExpressionSuggestions(partialExpr string) []*template.VariableSuggestion {
+	return fb.schema.GetTemplateExpressionSuggestions(partialExpr)
+}
+
+func (fs *FormSchema) GetVariableSuggestions() []*template.VariableSuggestion {
+	return fs.variableRegistry.GenerateVariableSuggestions()
+}
+
+// GetVariableList returns a list of all registered variables
+func (fs *FormSchema) GetVariableList() []string {
+	suggestions := fs.GetVariableSuggestions()
+	variables := make([]string, 0)
+
+	for _, s := range suggestions {
+		if !s.IsFunction && !s.IsNested {
+			variables = append(variables, s.Expr)
+		}
+	}
+
+	return variables
+}
+
+// GetFunctionList returns a list of all available functions
+func (fs *FormSchema) GetFunctionList() map[string]string {
+	suggestions := fs.GetVariableSuggestions()
+	functions := make(map[string]string)
+
+	for _, s := range suggestions {
+		if s.IsFunction {
+			functions[s.Expr] = s.Signature
+		}
+	}
+
+	return functions
 }
 
 // RegisterFunction function to register a function directly on the schema

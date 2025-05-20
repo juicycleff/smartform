@@ -973,6 +973,54 @@ func (fb *FieldBuilder) WithDynamicOptionsConfig(config *OptionsConfig) *FieldBu
 	return fb
 }
 
+// DefaultWhen adds a conditional default value to the field
+func (fb *FieldBuilder) DefaultWhen(condition *Condition, value interface{}) *FieldBuilder {
+	if fb.field.DefaultWhen == nil {
+		fb.field.DefaultWhen = []*DefaultWhen{}
+	}
+	fb.field.DefaultWhen = append(fb.field.DefaultWhen, &DefaultWhen{
+		Condition: condition,
+		Value:     value,
+	})
+	return fb
+}
+
+// DefaultWhenEquals adds a conditional default value based on field equality
+func (fb *FieldBuilder) DefaultWhenEquals(fieldId string, equals interface{}, value interface{}) *FieldBuilder {
+	condition := When(fieldId).Equals(equals).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
+// DefaultWhenNotEquals adds a conditional default value based on field inequality
+func (fb *FieldBuilder) DefaultWhenNotEquals(fieldId string, notEquals interface{}, value interface{}) *FieldBuilder {
+	condition := When(fieldId).NotEquals(notEquals).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
+// DefaultWhenGreaterThan adds a conditional default value based on field comparison
+func (fb *FieldBuilder) DefaultWhenGreaterThan(fieldId string, greaterThan interface{}, value interface{}) *FieldBuilder {
+	condition := When(fieldId).GreaterThan(greaterThan).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
+// DefaultWhenLessThan adds a conditional default value based on field comparison
+func (fb *FieldBuilder) DefaultWhenLessThan(fieldId string, lessThan interface{}, value interface{}) *FieldBuilder {
+	condition := When(fieldId).LessThan(lessThan).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
+// DefaultWhenExists adds a conditional default value based on field existence
+func (fb *FieldBuilder) DefaultWhenExists(fieldId string, value interface{}) *FieldBuilder {
+	condition := Exists(fieldId).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
+// DefaultWhenExpression adds a conditional default value based on a custom expression
+func (fb *FieldBuilder) DefaultWhenExpression(expression string, value interface{}) *FieldBuilder {
+	condition := WithExpression(expression).Build()
+	return fb.DefaultWhen(condition, value)
+}
+
 // Build finalizes and returns the field
 func (fb *FieldBuilder) Build() *Field {
 	return fb.field
