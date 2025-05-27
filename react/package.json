@@ -9,7 +9,8 @@
     "**/*.css",
     "**/*.scss"
   ],
-  "style": "dist/react.css",
+  "style": "dist/smartform-react.css",
+  "private": "false",
   "files": [
     "dist"
   ],
