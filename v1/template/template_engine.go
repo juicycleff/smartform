@@ -83,6 +83,19 @@ func (vr *VariableRegistry) GetVariable(path string) (interface{}, bool) {
 	return current, true
 }
 
+// GetVariables retrieves all variables
+func (vr *VariableRegistry) GetVariables() map[string]interface{} {
+	vr.mutex.RLock()
+	defer vr.mutex.RUnlock()
+
+	var variables = make(map[string]interface{})
+	for k, v := range vr.variables {
+		variables[k] = v
+	}
+
+	return variables
+}
+
 // TemplateFunction represents a function that can be called in templates
 type TemplateFunction func(args []interface{}) (interface{}, error)
 

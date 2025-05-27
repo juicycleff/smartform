@@ -52,6 +52,7 @@ type Condition struct {
 	Operator   string        `json:"operator,omitempty"`   // eq, neq, gt, lt, etc.
 	Conditions []*Condition  `json:"conditions,omitempty"` // For AND/OR conditions
 	Expression string        `json:"expression,omitempty"` // For custom expressions
+	Message    string        `json:"message,omitempty"`
 }
 
 // ValidationRule represents a validation constraint for a field
@@ -199,6 +200,36 @@ func (fs *FormSchema) RegisterVariableFunction(name string, fn template.Template
 // GetVariableRegistry returns the form's variable registry
 func (fs *FormSchema) GetVariableRegistry() *template.VariableRegistry {
 	return fs.variableRegistry
+}
+
+// ResolveFormData resolves template expressions in form data
+func (fs *FormSchema) ResolveFormData(data map[string]interface{}, options ...*ResolutionOptions) map[string]interface{} {
+	resolver := fs.GetTemplateResolver()
+	return resolver.ResolveFormData(data, options...)
+}
+
+// ResolveFieldValue resolves template expressions in a single field value
+func (fs *FormSchema) ResolveFieldValue(fieldID string, value interface{}, formData map[string]interface{}, options ...*ResolutionOptions) *ResolutionResult {
+	resolver := fs.GetTemplateResolver()
+	return resolver.ResolveFieldValue(fieldID, value, formData, options...)
+}
+
+// ResolveFieldConfiguration resolves template expressions in field configuration
+func (fs *FormSchema) ResolveFieldConfiguration(field *Field, formData map[string]interface{}, options ...*ResolutionOptions) *Field {
+	resolver := fs.GetTemplateResolver()
+	return resolver.ResolveFieldConfiguration(field, formData, options...)
+}
+
+// ResolveDefaultValues resolves default values for all fields
+func (fs *FormSchema) ResolveDefaultValues(formData map[string]interface{}, options ...*ResolutionOptions) map[string]interface{} {
+	resolver := fs.GetTemplateResolver()
+	return resolver.ResolveDefaultValues(formData, options...)
+}
+
+// ResolveConditionalExpression resolves a conditional expression
+func (fs *FormSchema) ResolveConditionalExpression(condition *Condition, formData map[string]interface{}, options ...*ResolutionOptions) (bool, error) {
+	resolver := fs.GetTemplateResolver()
+	return resolver.ResolveConditionalExpression(condition, formData, options...)
 }
 
 // Validate validates the given form data against the schema and returns a ValidationResult containing validation outcomes.
