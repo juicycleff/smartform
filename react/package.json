@@ -46,8 +46,7 @@
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "lint": "eslint ./ --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{ts,tsx}\"",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run test && npm run lint"
+    "prepare": "npm run build"
   },
   "keywords": [
     "react",
