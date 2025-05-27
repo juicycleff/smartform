@@ -1,27 +1,27 @@
-import type { Condition, Field, FormSchema } from './types'
-import { Validator } from './validation-engine'
+import type { Condition, Field, FormSchema } from "./types";
+import { Validator } from "./validation-engine";
 
 /**
  * FormRenderer converts form schemas to JSON representations for the frontend
  */
 export class FormRenderer {
-  private schema: FormSchema
-  private validator: Validator
+  private schema: FormSchema;
+  private validator: Validator;
 
   /**
    * Creates a new form renderer
    * @param schema Form schema to render
    */
   constructor(schema: FormSchema) {
-    this.schema = schema
-    this.validator = new Validator(schema)
+    this.schema = schema;
+    this.validator = new Validator(schema);
   }
 
   /**
    * Converts the form schema to a JSON string
    */
   renderJson(): string {
-    return JSON.stringify(this.schema, null, 2)
+    return JSON.stringify(this.schema, null, 2);
   }
 
   /**
@@ -30,10 +30,10 @@ export class FormRenderer {
    */
   renderJsonWithContext(context: Record<string, any>): string {
     // Create a copy of the schema to modify
-    const schemaCopy = this.copySchemaWithContext(context)
+    const schemaCopy = this.copySchemaWithContext(context);
 
     // Convert to JSON
-    return JSON.stringify(schemaCopy, null, 2)
+    return JSON.stringify(schemaCopy, null, 2);
   }
 
   /**
@@ -57,40 +57,40 @@ export class FormRenderer {
       order: field.order,
       properties: { ...field.properties },
       nested: [],
-    }
+    };
 
     // Handle requiredIf condition
     if (field.requiredIf) {
-      fieldCopy.requiredIf = this.copyCondition(field.requiredIf)
+      fieldCopy.requiredIf = this.copyCondition(field.requiredIf);
     }
 
     // Copy validation rules
     if (field.validationRules) {
-      fieldCopy.validationRules = field.validationRules.map(rule => ({
+      fieldCopy.validationRules = field.validationRules.map((rule) => ({
         type: rule.type,
         message: rule.message,
         parameters: rule.parameters,
-      }))
+      }));
     }
 
     // Handle visibility condition
     if (field.visible) {
-      fieldCopy.visible = this.copyCondition(field.visible)
+      fieldCopy.visible = this.copyCondition(field.visible);
     }
 
     // Handle enablement condition
     if (field.enabled) {
-      fieldCopy.enabled = this.copyCondition(field.enabled)
+      fieldCopy.enabled = this.copyCondition(field.enabled);
 
       // Evaluate if field should be disabled in this context
       if (!this.validator.evaluateCondition(field.enabled, context)) {
-        fieldCopy.properties!.disabled = true
+        fieldCopy.properties!.disabled = true;
       }
     }
 
     // Handle options for select-type fields
     if (field.options) {
-      fieldCopy.options = this.copyOptionsWithContext(field.options, context)
+      fieldCopy.options = this.copyOptionsWithContext(field.options, context);
     }
 
     // Handle nested fields
@@ -101,15 +101,15 @@ export class FormRenderer {
           nestedField.visible &&
           !this.validator.evaluateCondition(nestedField.visible, context)
         ) {
-          continue
+          continue;
         }
 
-        const nestedCopy = this.copyFieldWithContext(nestedField, context)
-        fieldCopy.nested?.push(nestedCopy)
+        const nestedCopy = this.copyFieldWithContext(nestedField, context);
+        fieldCopy.nested?.push(nestedCopy);
       }
     }
 
-    return fieldCopy
+    return fieldCopy;
   }
 
   /**
@@ -126,7 +126,7 @@ export class FormRenderer {
       authType: this.schema.authType,
       fields: [],
       properties: { ...this.schema.properties },
-    }
+    };
 
     // Process fields based on context
     for (const field of this.schema.fields) {
@@ -135,18 +135,18 @@ export class FormRenderer {
         field.visible &&
         !this.validator.evaluateCondition(field.visible, context)
       ) {
-        continue
+        continue;
       }
 
       // Include the field with possible context-specific modifications
-      const fieldCopy = this.copyFieldWithContext(field, context)
-      schemaCopy.fields.push(fieldCopy)
+      const fieldCopy = this.copyFieldWithContext(field, context);
+      schemaCopy.fields.push(fieldCopy);
     }
 
     // Sort fields by order
-    schemaCopy.fields.sort((a, b) => a.order - b.order)
+    schemaCopy.fields.sort((a, b) => a.order - b.order);
 
-    return schemaCopy
+    return schemaCopy;
   }
 
   /**
@@ -160,16 +160,16 @@ export class FormRenderer {
       value: condition.value,
       operator: condition.operator,
       expression: condition.expression,
-    }
+    };
 
     // Copy nested conditions
     if (condition.conditions && condition.conditions.length > 0) {
-      conditionCopy.conditions = condition.conditions.map(subCondition =>
+      conditionCopy.conditions = condition.conditions.map((subCondition) =>
         this.copyCondition(subCondition),
-      )
+      );
     }
 
-    return conditionCopy
+    return conditionCopy;
   }
 
   /**
@@ -182,12 +182,12 @@ export class FormRenderer {
     context: Record<string, any>,
   ): any {
     if (!options) {
-      return null
+      return null;
     }
 
     const optionsCopy = {
       type: options.type,
-    } as any
+    } as any;
 
     // Copy static options
     if (options.static) {
@@ -195,7 +195,7 @@ export class FormRenderer {
         value: option.value,
         label: option.label,
         icon: option.icon,
-      }))
+      }));
     }
 
     // Handle dynamic options source
@@ -209,48 +209,52 @@ export class FormRenderer {
         refreshOn: options.dynamicSource.refreshOn
           ? [...options.dynamicSource.refreshOn]
           : [],
-      }
+      };
 
       // Copy headers
       if (options.dynamicSource.headers) {
-        optionsCopy.dynamicSource.headers = { ...options.dynamicSource.headers }
+        optionsCopy.dynamicSource.headers = {
+          ...options.dynamicSource.headers,
+        };
       }
 
       // Copy parameters
       if (options.dynamicSource.parameters) {
         optionsCopy.dynamicSource.parameters = {
           ...options.dynamicSource.parameters,
-        }
+        };
       }
     }
 
     // Handle dependent options
     if (options.dependency) {
       // Process dependent options based on context
-      const dependentField = options.dependency.field
-      const dependentValue = this.getValueFromContext(context, dependentField)
+      const dependentField = options.dependency.field;
+      const dependentValue = this.getValueFromContext(context, dependentField);
 
       optionsCopy.dependency = {
         field: dependentField,
-      }
+      };
 
       // Copy value map
       if (options.dependency.valueMap) {
-        optionsCopy.dependency.valueMap = {} as any
+        optionsCopy.dependency.valueMap = {} as any;
 
         for (const [key, values] of Object.entries(
           options.dependency.valueMap,
         )) {
-          optionsCopy.dependency.valueMap[key] = (values as any[]).map(opt => ({
-            value: opt.value,
-            label: opt.label,
-            icon: opt.icon,
-          }))
+          optionsCopy.dependency.valueMap[key] = (values as any[]).map(
+            (opt) => ({
+              value: opt.value,
+              label: opt.label,
+              icon: opt.icon,
+            }),
+          );
         }
 
         // Filter options based on dependent field value
         if (dependentValue !== null && dependentValue !== undefined) {
-          const valueStr = String(dependentValue)
+          const valueStr = String(dependentValue);
           if (options.dependency.valueMap[valueStr]) {
             optionsCopy.static = options.dependency.valueMap[valueStr].map(
               (opt: any) => ({
@@ -258,13 +262,13 @@ export class FormRenderer {
                 label: opt.label,
                 icon: opt.icon,
               }),
-            )
+            );
           }
         }
       }
     }
 
-    return optionsCopy
+    return optionsCopy;
   }
 
   /**
@@ -273,6 +277,6 @@ export class FormRenderer {
    * @param path Dot notation path
    */
   private getValueFromContext(context: Record<string, any>, path: string): any {
-    return this.validator.getValueByPath(context, path)
+    return this.validator.getValueByPath(context, path);
   }
 }

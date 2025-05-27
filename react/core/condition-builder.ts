@@ -1,17 +1,17 @@
-import { type Condition, ConditionType } from './types'
+import { type Condition, ConditionType } from "./types";
 
 /**
  * ConditionBuilder provides a fluent API for creating conditions
  */
 export class ConditionBuilder {
-  condition: Condition
+  condition: Condition;
 
   /**
    * Creates a new condition builder with an existing condition
    * @param condition Initial condition
    */
   constructor(condition: Condition) {
-    this.condition = condition
+    this.condition = condition;
   }
 
   /**
@@ -22,7 +22,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.Simple,
       field,
-    })
+    });
   }
 
   /**
@@ -30,9 +30,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   equals(value: any): ConditionBuilder {
-    this.condition.operator = 'eq'
-    this.condition.value = value
-    return this
+    this.condition.operator = "eq";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -40,9 +40,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   notEquals(value: any): ConditionBuilder {
-    this.condition.operator = 'neq'
-    this.condition.value = value
-    return this
+    this.condition.operator = "neq";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -50,9 +50,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   greaterThan(value: any): ConditionBuilder {
-    this.condition.operator = 'gt'
-    this.condition.value = value
-    return this
+    this.condition.operator = "gt";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -60,9 +60,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   greaterThanOrEquals(value: any): ConditionBuilder {
-    this.condition.operator = 'gte'
-    this.condition.value = value
-    return this
+    this.condition.operator = "gte";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -70,9 +70,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   lessThan(value: any): ConditionBuilder {
-    this.condition.operator = 'lt'
-    this.condition.value = value
-    return this
+    this.condition.operator = "lt";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -80,9 +80,9 @@ export class ConditionBuilder {
    * @param value Value to compare with
    */
   lessThanOrEquals(value: any): ConditionBuilder {
-    this.condition.operator = 'lte'
-    this.condition.value = value
-    return this
+    this.condition.operator = "lte";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -90,9 +90,9 @@ export class ConditionBuilder {
    * @param value Substring to search for
    */
   contains(value: string): ConditionBuilder {
-    this.condition.operator = 'contains'
-    this.condition.value = value
-    return this
+    this.condition.operator = "contains";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -100,9 +100,9 @@ export class ConditionBuilder {
    * @param value Substring to search for
    */
   startsWith(value: string): ConditionBuilder {
-    this.condition.operator = 'startsWith'
-    this.condition.value = value
-    return this
+    this.condition.operator = "startsWith";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -110,9 +110,9 @@ export class ConditionBuilder {
    * @param value Substring to search for
    */
   endsWith(value: string): ConditionBuilder {
-    this.condition.operator = 'endsWith'
-    this.condition.value = value
-    return this
+    this.condition.operator = "endsWith";
+    this.condition.value = value;
+    return this;
   }
 
   /**
@@ -123,7 +123,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.Exists,
       field,
-    })
+    });
   }
 
   /**
@@ -134,7 +134,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.And,
       conditions,
-    })
+    });
   }
 
   /**
@@ -145,7 +145,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.Or,
       conditions,
-    })
+    });
   }
 
   /**
@@ -156,7 +156,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.Not,
       conditions: [condition],
-    })
+    });
   }
 
   /**
@@ -167,7 +167,7 @@ export class ConditionBuilder {
     return new ConditionBuilder({
       type: ConditionType.Expression,
       expression,
-    })
+    });
   }
 
   /**
@@ -180,17 +180,17 @@ export class ConditionBuilder {
       this.condition.type === ConditionType.Or
     ) {
       if (!this.condition.conditions) {
-        this.condition.conditions = []
+        this.condition.conditions = [];
       }
-      this.condition.conditions.push(condition)
+      this.condition.conditions.push(condition);
     }
-    return this
+    return this;
   }
 
   /**
    * Finalizes and returns the condition
    */
   build(): Condition {
-    return this.condition
+    return this.condition;
   }
 }

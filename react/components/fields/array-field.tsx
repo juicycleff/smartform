@@ -1,28 +1,24 @@
-import { Button } from '../ui/button'
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-} from '../ui/form'
-import { Plus, Trash2 } from 'lucide-react'
-import type React from 'react'
-import { useFieldArray, useFormContext } from 'react-hook-form'
-import type { Field } from '../../core'
-import { useSmartForm } from '../context'
-import { FormField as SmartFormField } from '../form-field'
-import { TemplateModeWrapper } from './template-mode-wrapper'
+import { Button } from "../ui/button";
+import { FormField, FormItem, FormLabel } from "../ui/form";
+import { Plus, Trash2 } from "lucide-react";
+import type React from "react";
+import { useFieldArray, useFormContext } from "react-hook-form";
+import type { Field } from "../../core";
+import { useSmartForm } from "../context";
+import { FormField as SmartFormField } from "../form-field";
+import { TemplateModeWrapper } from "./template-mode-wrapper";
 
 interface ArrayFieldProps {
-  field: Field
-  parentPath?: string
+  field: Field;
+  parentPath?: string;
 }
 
-const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = '' }) => {
-  const { isFieldEnabled } = useSmartForm()
-  const { control } = useFormContext()
-  const fieldPath = parentPath ? `${parentPath}.${field.id}` : field.id
+const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = "" }) => {
+  const { isFieldEnabled } = useSmartForm();
+  const { control } = useFormContext();
+  const fieldPath = parentPath ? `${parentPath}.${field.id}` : field.id;
 
-  const disabled = !isFieldEnabled(field)
+  const disabled = !isFieldEnabled(field);
 
   // Use react-hook-form's useFieldArray to manage the array
   const {
@@ -32,11 +28,11 @@ const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = '' }) => {
   } = useFieldArray({
     control,
     name: fieldPath,
-  })
+  });
 
   // Get the template field (the first nested field)
   const templateField =
-    field.nested && field.nested.length > 0 ? field.nested[0] : null
+    field.nested && field.nested.length > 0 ? field.nested[0] : null;
 
   if (!templateField) {
     return (
@@ -45,15 +41,15 @@ const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = '' }) => {
           Error: Array field {field.id} has no template defined
         </p>
       </div>
-    )
+    );
   }
 
   // Function to add a new item
   const handleAddItem = () => {
     // Create a default value based on the template field type
-    const defaultValue = getDefaultValueForField(templateField)
-    append(defaultValue)
-  }
+    const defaultValue = getDefaultValueForField(templateField);
+    append(defaultValue);
+  };
 
   return (
     <FormField
@@ -97,11 +93,11 @@ const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = '' }) => {
                     </Button>
 
                     {/* Handle different template field types */}
-                    {templateField.type === 'group' ||
-                    templateField.type === 'object' ? (
+                    {templateField.type === "group" ||
+                    templateField.type === "object" ? (
                       // For group templates, render all nested fields
                       <div className="space-y-3 pt-4">
-                        {templateField.nested?.map(nestedField => (
+                        {templateField.nested?.map((nestedField) => (
                           <SmartFormField
                             key={nestedField.id}
                             field={nestedField}
@@ -128,56 +124,56 @@ const ArrayField: React.FC<ArrayFieldProps> = ({ field, parentPath = '' }) => {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};
 
 // Helper function to create default values based on field type
 const getDefaultValueForField = (field: Field): any => {
   switch (field.type) {
-    case 'text':
-    case 'textarea':
-    case 'email':
-    case 'password':
-      return field.defaultValue || ''
+    case "text":
+    case "textarea":
+    case "email":
+    case "password":
+      return field.defaultValue || "";
 
-    case 'number':
-      return field.defaultValue || 0
+    case "number":
+      return field.defaultValue || 0;
 
-    case 'checkbox':
-      return field.defaultValue || false
+    case "checkbox":
+      return field.defaultValue || false;
 
-    case 'date':
-    case 'time':
-    case 'datetime':
-      return field.defaultValue || ''
+    case "date":
+    case "time":
+    case "datetime":
+      return field.defaultValue || "";
 
-    case 'select':
-      return field.defaultValue || ''
+    case "select":
+      return field.defaultValue || "";
 
-    case 'multiselect':
-      return field.defaultValue || []
+    case "multiselect":
+      return field.defaultValue || [];
 
-    case 'group':
-    case 'object': {
+    case "group":
+    case "object": {
       // For object types, create a nested object with defaults
       if (field.nested && field.nested.length > 0) {
         return field.nested.reduce(
           (obj, nestedField) => {
-            obj[nestedField.id] = getDefaultValueForField(nestedField)
-            return obj
+            obj[nestedField.id] = getDefaultValueForField(nestedField);
+            return obj;
           },
           {} as Record<string, any>,
-        )
+        );
       }
-      return {}
+      return {};
     }
 
-    case 'array':
-      return field.defaultValue || []
+    case "array":
+      return field.defaultValue || [];
 
     default:
-      return field.defaultValue || null
+      return field.defaultValue || null;
   }
-}
+};
 
-export default ArrayField
+export default ArrayField;

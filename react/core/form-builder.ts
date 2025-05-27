@@ -4,9 +4,9 @@ import {
   JWTBuilder,
   OAuth2Builder,
   SAMLBuilder,
-} from './auth-builder'
-import { FieldBuilder } from './field-builder'
-import { FormSchemaImpl } from './form-schema'
+} from "./auth-builder";
+import { FieldBuilder } from "./field-builder";
+import { FormSchemaImpl } from "./form-schema";
 import {
   APIFieldBuilder,
   AnyOfFieldBuilder,
@@ -16,14 +16,14 @@ import {
   CustomFieldBuilder,
   GroupFieldBuilder,
   OneOfFieldBuilder,
-} from './specialized-field-builder'
-import { type AuthStrategy, type Field, FormType } from './types'
+} from "./specialized-field-builder";
+import { type AuthStrategy, type Field, FormType } from "./types";
 
 /**
  * FormBuilder provides a fluent API for creating form schemas
  */
 export class FormBuilder {
-  private schema: FormSchemaImpl
+  private schema: FormSchemaImpl;
 
   /**
    * Create a new form builder
@@ -31,7 +31,7 @@ export class FormBuilder {
    * @param title Form display title
    */
   constructor(id: string, title: string) {
-    this.schema = new FormSchemaImpl(id, title)
+    this.schema = new FormSchemaImpl(id, title);
   }
 
   /**
@@ -46,10 +46,10 @@ export class FormBuilder {
     title: string,
     authType: AuthStrategy,
   ): FormBuilder {
-    const builder = new FormBuilder(id, title)
-    builder.schema.type = FormType.Auth
-    builder.schema.authType = authType
-    return builder
+    const builder = new FormBuilder(id, title);
+    builder.schema.type = FormType.Auth;
+    builder.schema.authType = authType;
+    return builder;
   }
 
   /**
@@ -57,8 +57,8 @@ export class FormBuilder {
    * @param description Form description text
    */
   description(description: string): this {
-    this.schema.description = description
-    return this
+    this.schema.description = description;
+    return this;
   }
 
   /**
@@ -66,8 +66,8 @@ export class FormBuilder {
    * @param formType Form type
    */
   formType(formType: FormType): this {
-    this.schema.type = formType
-    return this
+    this.schema.type = formType;
+    return this;
   }
 
   /**
@@ -76,9 +76,9 @@ export class FormBuilder {
    */
   authType(authType: AuthStrategy): this {
     if (this.schema.type === FormType.Auth) {
-      this.schema.authType = authType
+      this.schema.authType = authType;
     }
-    return this
+    return this;
   }
 
   /**
@@ -87,8 +87,8 @@ export class FormBuilder {
    * @param value Property value
    */
   property(key: string, value: any): this {
-    this.schema.properties[key] = value
-    return this
+    this.schema.properties[key] = value;
+    return this;
   }
 
   /**
@@ -96,8 +96,8 @@ export class FormBuilder {
    * @param field Field to add
    */
   addField(field: Field): this {
-    this.schema.addField(field)
-    return this
+    this.schema.addField(field);
+    return this;
   }
 
   /**
@@ -105,8 +105,8 @@ export class FormBuilder {
    * @param fields Fields to add
    */
   addFields(...fields: Field[]): this {
-    this.schema.addFields(...fields)
-    return this
+    this.schema.addFields(...fields);
+    return this;
   }
 
   /**
@@ -115,9 +115,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   textField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'text', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "text", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -126,9 +126,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   textareaField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'textarea', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "textarea", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -137,9 +137,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   numberField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'number', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "number", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -148,9 +148,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   emailField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'email', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "email", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -159,9 +159,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   passwordField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'password', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "password", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -170,9 +170,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   selectField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'select', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "select", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -181,9 +181,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   multiSelectField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'multiselect', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "multiselect", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -192,9 +192,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   checkboxField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'checkbox', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "checkbox", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -203,9 +203,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   radioField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'radio', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "radio", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -214,9 +214,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   dateField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'date', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "date", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -225,9 +225,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   timeField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'time', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "time", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -236,9 +236,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   dateTimeField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'datetime', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "datetime", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -247,9 +247,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   fileField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'file', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "file", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -258,9 +258,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   imageField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'image', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "image", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -269,9 +269,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   switchField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'switch', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "switch", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -280,9 +280,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   sliderField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'slider', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "slider", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -291,9 +291,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   ratingField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'rating', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "rating", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -302,9 +302,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   colorField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'color', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "color", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -313,10 +313,10 @@ export class FormBuilder {
    * @param value Field value
    */
   hiddenField(id: string, value: any): FieldBuilder {
-    const builder = new FieldBuilder(id, 'hidden', '')
-    builder.defaultValue(value)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "hidden", "");
+    builder.defaultValue(value);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -325,9 +325,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   richTextField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'richtext', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "richtext", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -336,9 +336,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   sectionField(id: string, label: string): FieldBuilder {
-    const builder = new FieldBuilder(id, 'section', label)
-    this.addField(builder.build())
-    return builder
+    const builder = new FieldBuilder(id, "section", label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -347,9 +347,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   groupField(id: string, label: string): GroupFieldBuilder {
-    const builder = new GroupFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new GroupFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -358,9 +358,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   arrayField(id: string, label: string): ArrayFieldBuilder {
-    const builder = new ArrayFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new ArrayFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -369,9 +369,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   oneOfField(id: string, label: string): OneOfFieldBuilder {
-    const builder = new OneOfFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new OneOfFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -380,9 +380,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   anyOfField(id: string, label: string): AnyOfFieldBuilder {
-    const builder = new AnyOfFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new AnyOfFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -391,9 +391,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   apiField(id: string, label: string): APIFieldBuilder {
-    const builder = new APIFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new APIFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -402,9 +402,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   authField(id: string, label: string): AuthFieldBuilder {
-    const builder = new AuthFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new AuthFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -413,9 +413,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   oAuthField(id: string, label: string): OAuth2Builder {
-    const builder = new OAuth2Builder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new OAuth2Builder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -424,9 +424,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   basicAuthField(id: string, label: string): BasicAuthBuilder {
-    const builder = new BasicAuthBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new BasicAuthBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -435,9 +435,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   apiKeyField(id: string, label: string): APIKeyBuilder {
-    const builder = new APIKeyBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new APIKeyBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -446,9 +446,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   jwtField(id: string, label: string): JWTBuilder {
-    const builder = new JWTBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new JWTBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -457,9 +457,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   samlField(id: string, label: string): SAMLBuilder {
-    const builder = new SAMLBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new SAMLBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -468,9 +468,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   branchField(id: string, label: string): BranchFieldBuilder {
-    const builder = new BranchFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new BranchFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -479,9 +479,9 @@ export class FormBuilder {
    * @param label Field display label
    */
   customField(id: string, label: string): CustomFieldBuilder {
-    const builder = new CustomFieldBuilder(id, label)
-    this.addField(builder.build())
-    return builder
+    const builder = new CustomFieldBuilder(id, label);
+    this.addField(builder.build());
+    return builder;
   }
 
   /**
@@ -490,7 +490,7 @@ export class FormBuilder {
    */
   build(): FormSchemaImpl {
     // Sort fields by order before returning
-    this.schema.sortFields()
-    return this.schema
+    this.schema.sortFields();
+    return this.schema;
   }
 }

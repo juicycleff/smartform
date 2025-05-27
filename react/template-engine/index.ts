@@ -1,4 +1,4 @@
-export * from './template-engine'
+export * from "./template-engine";
 export type {
   VariableSuggestion,
   ArrayInfo,
@@ -6,6 +6,6 @@ export type {
   TemplateExpression,
   TemplateFunction,
   TemplatePart,
-} from './types'
-export * from './variable-registry'
-export * from './template-parts'
+} from "./types";
+export * from "./variable-registry";
+export * from "./template-parts";

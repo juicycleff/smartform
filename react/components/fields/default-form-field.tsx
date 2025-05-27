@@ -5,24 +5,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import type React from 'react'
-import { useFormContext } from 'react-hook-form'
-import type { Field } from '../../core'
-import { useSmartForm } from '../context'
+} from "../ui/form";
+import { Input } from "../ui/input";
+import type React from "react";
+import { useFormContext } from "react-hook-form";
+import type { Field } from "../../core";
+import { useSmartForm } from "../context";
 
 interface DefaultFormFieldProps {
-  field: Field
-  path: string
+  field: Field;
+  path: string;
 }
 
 const DefaultFormField: React.FC<DefaultFormFieldProps> = ({ field, path }) => {
-  const { isFieldEnabled, isFieldRequired } = useSmartForm()
-  const { control } = useFormContext()
+  const { isFieldEnabled, isFieldRequired } = useSmartForm();
+  const { control } = useFormContext();
 
-  const disabled = !isFieldEnabled(field)
-  const required = isFieldRequired(field)
+  const disabled = !isFieldEnabled(field);
+  const required = isFieldRequired(field);
 
   return (
     <FormField
@@ -34,7 +34,7 @@ const DefaultFormField: React.FC<DefaultFormFieldProps> = ({ field, path }) => {
             className={
               required
                 ? 'after:ml-0.5 after:text-red-500 after:content-["*"]'
-                : ''
+                : ""
             }
           >
             {field.label}
@@ -53,7 +53,7 @@ const DefaultFormField: React.FC<DefaultFormFieldProps> = ({ field, path }) => {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};
 
-export default DefaultFormField
+export default DefaultFormField;

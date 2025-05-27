@@ -20,8 +20,8 @@
       "import": "./dist/index.mjs"
     },
     "./styles": {
-      "require": "./dist/react.css",
-      "import": "./dist/react.css"
+      "require": "./dist/smartform-react.css",
+      "import": "./dist/smartform-react.css"
     },
     "./core": {
       "types": "./dist/types/core.d.ts",
@@ -44,8 +44,8 @@
     "clean:dist": "rimraf dist",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
-    "lint": "eslint src --ext .ts,.tsx",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "lint": "eslint ./ --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm run test && npm run lint"
   },

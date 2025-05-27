@@ -1,4 +1,4 @@
-import { Button } from '../ui/button'
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -6,88 +6,88 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '../ui/card'
+} from "../ui/card";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import { Loader2 } from 'lucide-react'
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Loader2 } from "lucide-react";
 
-import type React from 'react'
-import { useState } from 'react'
-import { useFormContext } from 'react-hook-form'
-import { AuthStrategy, type Field } from '../../core'
-import { useLogger } from '../../logger'
-import { useSmartForm } from '../index'
+import type React from "react";
+import { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { AuthStrategy, type Field } from "../../core";
+import { useLogger } from "../../logger";
+import { useSmartForm } from "../index";
 
 interface AuthFieldProps {
-  field: Field
-  path: string
+  field: Field;
+  path: string;
 }
 
 const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
-  const log = useLogger()
-  const { isFieldEnabled, isFieldRequired } = useSmartForm()
-  const { control, setValue } = useFormContext()
+  const log = useLogger();
+  const { isFieldEnabled, isFieldRequired } = useSmartForm();
+  const { control, setValue } = useFormContext();
 
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [authToken, setAuthToken] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
 
-  const disabled = !isFieldEnabled(field)
-  const required = isFieldRequired(field)
+  const disabled = !isFieldEnabled(field);
+  const required = isFieldRequired(field);
 
   // Determine the auth type from properties
   const authType =
-    (field.properties?.authType as AuthStrategy) || AuthStrategy.OAuth2
+    (field.properties?.authType as AuthStrategy) || AuthStrategy.OAuth2;
 
   // Function to handle authentication
   const handleAuthenticate = async (authData: Record<string, string>) => {
-    setLoading(true)
-    setError(null)
+    setLoading(true);
+    setError(null);
 
     try {
       // In a real implementation, you would call an authentication API
       // This is a placeholder implementation
       const response = await fetch(`/api/auth/${authType.toLowerCase()}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(authData),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error(`Authentication failed with status ${response.status}`)
+        throw new Error(`Authentication failed with status ${response.status}`);
       }
 
-      const data = (await response.json()) as any
+      const data = (await response.json()) as any;
 
       if (data.token) {
-        setAuthToken(data.token)
-        setValue(path, data.token)
+        setAuthToken(data.token);
+        setValue(path, data.token);
       } else {
-        throw new Error('No token received from authentication service')
+        throw new Error("No token received from authentication service");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed')
-      log.error('Authentication error:', err)
+      setError(err instanceof Error ? err.message : "Authentication failed");
+      log.error("Authentication error:", err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   // Render different auth forms based on the auth type
   const renderAuthForm = () => {
     switch (authType) {
       case AuthStrategy.OAuth2:
         return (
-          <div className="sf-space-y-4">
-            <p className="sf-text-gray-500 sf-text-sm">
+          <div className="sf:space-y-4">
+            <p className="sf:text-gray-500 sf:text-sm">
               Click the button to authenticate using OAuth2:
             </p>
             <Button
@@ -96,23 +96,23 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                 // In a real implementation, this would open an OAuth popup
                 // For now, we'll just simulate success
                 handleAuthenticate({
-                  grant_type: 'authorization_code',
-                  code: 'simulated_code',
-                })
+                  grant_type: "authorization_code",
+                  code: "simulated_code",
+                });
               }}
               disabled={disabled || loading}
             >
               {loading ? (
                 <>
-                  <Loader2 className="sf-mr-2 sf-h-4 sf-w-4 sf-animate-spin" />
+                  <Loader2 className="sf:mr-2 sf:h-4 sf:w-4 sf:animate-spin" />
                   Authenticating...
                 </>
               ) : (
-                'Authenticate with OAuth2'
+                "Authenticate with OAuth2"
               )}
             </Button>
           </div>
-        )
+        );
 
       case AuthStrategy.Basic:
         return (
@@ -147,20 +147,20 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                     document.getElementById(
                       `${path}-username`,
                     ) as HTMLInputElement
-                  )?.value || ''
+                  )?.value || "";
                 const password =
                   (
                     document.getElementById(
                       `${path}-password`,
                     ) as HTMLInputElement
-                  )?.value || ''
+                  )?.value || "";
 
                 if (!username || !password) {
-                  setError('Username and password are required')
-                  return
+                  setError("Username and password are required");
+                  return;
                 }
 
-                handleAuthenticate({ username, password })
+                handleAuthenticate({ username, password });
               }}
               disabled={disabled || loading}
             >
@@ -170,11 +170,11 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                   Authenticating...
                 </>
               ) : (
-                'Login'
+                "Login"
               )}
             </Button>
           </div>
-        )
+        );
 
       case AuthStrategy.APIKey:
         return (
@@ -198,14 +198,14 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                     document.getElementById(
                       `${path}-apikey`,
                     ) as HTMLInputElement
-                  )?.value || ''
+                  )?.value || "";
 
                 if (!apiKey) {
-                  setError('API key is required')
-                  return
+                  setError("API key is required");
+                  return;
                 }
 
-                handleAuthenticate({ apiKey })
+                handleAuthenticate({ apiKey });
               }}
               disabled={disabled || loading}
             >
@@ -215,11 +215,11 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                   Validating...
                 </>
               ) : (
-                'Validate API Key'
+                "Validate API Key"
               )}
             </Button>
           </div>
-        )
+        );
 
       case AuthStrategy.JWT:
         return (
@@ -240,14 +240,14 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
               onClick={() => {
                 const jwt =
                   (document.getElementById(`${path}-jwt`) as HTMLInputElement)
-                    ?.value || ''
+                    ?.value || "";
 
                 if (!jwt) {
-                  setError('JWT token is required')
-                  return
+                  setError("JWT token is required");
+                  return;
                 }
 
-                handleAuthenticate({ jwt })
+                handleAuthenticate({ jwt });
               }}
               disabled={disabled || loading}
             >
@@ -257,11 +257,11 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                   Validating...
                 </>
               ) : (
-                'Validate JWT'
+                "Validate JWT"
               )}
             </Button>
           </div>
-        )
+        );
 
       case AuthStrategy.SAML:
         return (
@@ -274,7 +274,7 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
               onClick={() => {
                 // In a real implementation, this would initiate SAML auth
                 // For now, we'll just simulate success
-                handleAuthenticate({ provider: 'simulated_saml_provider' })
+                handleAuthenticate({ provider: "simulated_saml_provider" });
               }}
               disabled={disabled || loading}
             >
@@ -284,20 +284,20 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                   Authenticating...
                 </>
               ) : (
-                'Authenticate with SAML'
+                "Authenticate with SAML"
               )}
             </Button>
           </div>
-        )
+        );
 
       default:
         return (
           <div className="text-red-500">
             Unsupported authentication type: {authType}
           </div>
-        )
+        );
     }
-  }
+  };
 
   return (
     <FormField
@@ -309,7 +309,7 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
             className={
               required
                 ? 'after:ml-0.5 after:text-red-500 after:content-["*"]'
-                : ''
+                : ""
             }
           >
             {field.label}
@@ -343,8 +343,8 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      setAuthToken(null)
-                      setValue(path, null)
+                      setAuthToken(null);
+                      setValue(path, null);
                     }}
                   >
                     Clear Authentication
@@ -358,7 +358,7 @@ const AuthField: React.FC<AuthFieldProps> = ({ field, path }) => {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};
 
-export default AuthField
+export default AuthField;

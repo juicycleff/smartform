@@ -5,25 +5,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import { Input } from '../ui/input'
-import type React from 'react'
-import { useFormContext } from 'react-hook-form'
-import type { Field } from '../../core'
-import { useSmartForm } from '../context'
-import { TemplateModeWrapper } from './template-mode-wrapper'
+} from "../ui/form";
+import { Input } from "../ui/input";
+import type React from "react";
+import { useFormContext } from "react-hook-form";
+import type { Field } from "../../core";
+import { useSmartForm } from "../context";
+import { TemplateModeWrapper } from "./template-mode-wrapper";
 
 interface NumberFieldProps {
-  field: Field
-  path: string
+  field: Field;
+  path: string;
 }
 
 const NumberField: React.FC<NumberFieldProps> = ({ field, path }) => {
-  const { isFieldEnabled, isFieldRequired } = useSmartForm()
-  const { control } = useFormContext()
+  const { isFieldEnabled, isFieldRequired } = useSmartForm();
+  const { control } = useFormContext();
 
-  const disabled = !isFieldEnabled(field)
-  const required = isFieldRequired(field)
+  const disabled = !isFieldEnabled(field);
+  const required = isFieldRequired(field);
 
   return (
     <FormField
@@ -35,7 +35,7 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, path }) => {
             className={
               required
                 ? 'after:ml-0.5 after:text-red-500 after:content-["*"]'
-                : ''
+                : ""
             }
           >
             {field.label}
@@ -63,7 +63,7 @@ const NumberField: React.FC<NumberFieldProps> = ({ field, path }) => {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};
 
-export default NumberField
+export default NumberField;

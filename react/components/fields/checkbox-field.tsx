@@ -1,4 +1,4 @@
-import { Checkbox } from '../ui/checkbox'
+import { Checkbox } from "../ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -6,28 +6,25 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import {
-  RadioGroup,
-  RadioGroupItem,
-} from '../ui/radio-group'
-import type React from 'react'
-import { useFormContext } from 'react-hook-form'
-import { TemplateModeWrapper } from './template-mode-wrapper'
-import { type Field, FieldType } from '../../core'
-import { useSmartForm } from '../context'
+} from "../ui/form";
+import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
+import type React from "react";
+import { useFormContext } from "react-hook-form";
+import { TemplateModeWrapper } from "./template-mode-wrapper";
+import { type Field, FieldType } from "../../core";
+import { useSmartForm } from "../context";
 
 interface CheckboxFieldProps {
-  field: Field
-  path: string
+  field: Field;
+  path: string;
 }
 
 const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
-  const { isFieldEnabled, isFieldRequired } = useSmartForm()
-  const { control } = useFormContext()
+  const { isFieldEnabled, isFieldRequired } = useSmartForm();
+  const { control } = useFormContext();
 
-  const disabled = !isFieldEnabled(field)
-  const required = isFieldRequired(field)
+  const disabled = !isFieldEnabled(field);
+  const required = isFieldRequired(field);
 
   // If this is a radio group, render radio buttons
   if (field.type === FieldType.Radio && field.options?.static) {
@@ -36,12 +33,12 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
         control={control}
         name={path}
         render={({ field: formField }) => (
-          <FormItem className="sf-space-y-3">
+          <FormItem className="sf:space-y-3">
             <FormLabel
               className={
                 required
                   ? 'after:ml-0.5 after:text-red-500 after:content-["*"]'
-                  : ''
+                  : ""
               }
             >
               {field.label}
@@ -60,7 +57,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
                   disabled={disabled}
                   className="flex flex-col space-y-1"
                 >
-                  {field.options?.static?.map(option => (
+                  {field.options?.static?.map((option) => (
                     <FormItem
                       key={String(option.value)}
                       className="flex items-center space-x-3 space-y-0"
@@ -83,7 +80,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
           </FormItem>
         )}
       />
-    )
+    );
   }
 
   // Otherwise, render a checkbox
@@ -105,7 +102,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
               className={
                 required
                   ? 'after:ml-0.5 after:text-red-500 after:content-["*"]'
-                  : ''
+                  : ""
               }
             >
               {field.label}
@@ -117,7 +114,7 @@ const CheckboxField: React.FC<CheckboxFieldProps> = ({ field, path }) => {
         </FormItem>
       )}
     />
-  )
-}
+  );
+};
 
-export default CheckboxField
+export default CheckboxField;

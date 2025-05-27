@@ -1,2 +1,1 @@
-describe("Hello component", () => {
-});
+describe("Hello component", () => {});

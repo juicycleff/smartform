@@ -1,12 +1,12 @@
-import { FormSchemaImpl } from './form-schema'
-import type { Field } from './types'
+import { FormSchemaImpl } from "./form-schema";
+import type { Field } from "./types";
 
 /**
  * Creates a form schema from a JSON string
  * @param jsonStr JSON string representation of a form schema
  */
 export function formSchemaFromJSON(jsonStr: string): FormSchemaImpl {
-  return importJSON(jsonStr)
+  return importJSON(jsonStr);
 }
 
 /**
@@ -16,7 +16,7 @@ export function formSchemaFromJSON(jsonStr: string): FormSchemaImpl {
 export function formSchemaFromObject(
   rawSchema: Record<string, any>,
 ): FormSchemaImpl {
-  return convertToFormSchema(rawSchema)
+  return convertToFormSchema(rawSchema);
 }
 
 /**
@@ -29,17 +29,17 @@ export const JSONImporter = {
    */
   importJSON: (jsonStr: string): FormSchemaImpl => {
     // Parse the JSON string
-    let rawSchema: Record<string, any>
+    let rawSchema: Record<string, any>;
     try {
-      rawSchema = JSON.parse(jsonStr) as any
+      rawSchema = JSON.parse(jsonStr) as any;
     } catch (e) {
-      throw new Error(`Failed to parse JSON: ${(e as any)?.message}`)
+      throw new Error(`Failed to parse JSON: ${(e as any)?.message}`);
     }
 
     // Convert the raw object to FormSchema
-    return convertToFormSchema(rawSchema)
+    return convertToFormSchema(rawSchema);
   },
-}
+};
 
 /**
  * Converts a raw JSON object to a FormSchema
@@ -47,53 +47,53 @@ export const JSONImporter = {
  */
 function convertToFormSchema(rawSchema: Record<string, any>): FormSchemaImpl {
   // Extract required properties
-  const id = rawSchema.id
+  const id = rawSchema.id;
   if (!id) {
-    throw new Error("Missing required 'id' field")
+    throw new Error("Missing required 'id' field");
   }
 
-  const title = rawSchema.title
+  const title = rawSchema.title;
   if (!title) {
-    throw new Error("Missing required 'title' field")
+    throw new Error("Missing required 'title' field");
   }
 
   // Create a new FormSchema
-  const schema = new FormSchemaImpl(id, title)
+  const schema = new FormSchemaImpl(id, title);
 
   // Extract optional properties
   if (rawSchema.description) {
-    schema.description = rawSchema.description
+    schema.description = rawSchema.description;
   }
 
   // Extract form type
   if (rawSchema.type) {
-    schema.type = rawSchema.type
+    schema.type = rawSchema.type;
   }
 
   // Extract auth type for auth forms
   if (rawSchema.authType) {
-    schema.authType = rawSchema.authType
+    schema.authType = rawSchema.authType;
   }
 
   // Extract properties
-  if (rawSchema.properties && typeof rawSchema.properties === 'object') {
-    schema.properties = { ...rawSchema.properties }
+  if (rawSchema.properties && typeof rawSchema.properties === "object") {
+    schema.properties = { ...rawSchema.properties };
   }
 
   // Extract fields
   if (rawSchema.fields && Array.isArray(rawSchema.fields)) {
     for (const fieldRaw of rawSchema.fields) {
       try {
-        const field = convertToField(fieldRaw)
-        schema.addField(field)
+        const field = convertToField(fieldRaw);
+        schema.addField(field);
       } catch (e) {}
     }
   }
 
   // Ensure fields have proper order
-  schema.sortFields()
+  schema.sortFields();
 
-  return schema
+  return schema;
 }
 
 /**
@@ -102,18 +102,18 @@ function convertToFormSchema(rawSchema: Record<string, any>): FormSchemaImpl {
  */
 function convertToField(rawField: Record<string, any>): Field {
   // Extract required properties
-  const id = rawField.id
+  const id = rawField.id;
   if (!id) {
-    throw new Error("Missing required 'id' field in field definition")
+    throw new Error("Missing required 'id' field in field definition");
   }
 
-  const type = rawField.type
+  const type = rawField.type;
   if (!type) {
-    throw new Error("Missing required 'type' field in field definition")
+    throw new Error("Missing required 'type' field in field definition");
   }
 
   // Extract label (can be empty for some fields like hidden)
-  const label = rawField.label || ''
+  const label = rawField.label || "";
 
   // Create a new field
   const field: Field = {
@@ -123,72 +123,72 @@ function convertToField(rawField: Record<string, any>): Field {
     required: false,
     order: 0,
     properties: {},
-  }
+  };
 
   // Extract optional properties
   if (rawField.required !== undefined) {
-    field.required = Boolean(rawField.required)
+    field.required = Boolean(rawField.required);
   }
 
   if (rawField.placeholder) {
-    field.placeholder = rawField.placeholder
+    field.placeholder = rawField.placeholder;
   }
 
   if (rawField.helpText) {
-    field.helpText = rawField.helpText
+    field.helpText = rawField.helpText;
   }
 
   if (rawField.order !== undefined) {
-    field.order = Number(rawField.order)
+    field.order = Number(rawField.order);
   }
 
   // Extract default value
-  if ('defaultValue' in rawField) {
-    field.defaultValue = rawField.defaultValue
+  if ("defaultValue" in rawField) {
+    field.defaultValue = rawField.defaultValue;
   }
 
   // Extract properties
-  if (rawField.properties && typeof rawField.properties === 'object') {
-    field.properties = { ...rawField.properties }
+  if (rawField.properties && typeof rawField.properties === "object") {
+    field.properties = { ...rawField.properties };
   }
 
   // Extract visibility condition
   if (rawField.visible) {
-    field.visible = rawField.visible
+    field.visible = rawField.visible;
   }
 
   // Extract enabled condition
   if (rawField.enabled) {
-    field.enabled = rawField.enabled
+    field.enabled = rawField.enabled;
   }
 
   // Extract requiredIf condition
   if (rawField.requiredIf) {
-    field.requiredIf = rawField.requiredIf
+    field.requiredIf = rawField.requiredIf;
   }
 
   // Extract validation rules
   if (rawField.validationRules && Array.isArray(rawField.validationRules)) {
-    field.validationRules = rawField.validationRules
+    field.validationRules = rawField.validationRules;
   }
 
   // Extract options
   if (rawField.options) {
-    field.options = rawField.options
+    field.options = rawField.options;
   }
 
   // Extract nested fields
   if (rawField.nested && Array.isArray(rawField.nested)) {
-    field.nested = []
+    field.nested = [];
     for (const nestedRaw of rawField.nested) {
       try {
-        const nestedField = convertToField(nestedRaw)
-        field.nested.push(nestedField)
+        const nestedField = convertToField(nestedRaw);
+        field.nested.push(nestedField);
       } catch (e) {}
     }
   }
 
-  return field
+  return field;
 }
 
 /**
@@ -196,5 +196,5 @@ function convertToField(rawField: Record<string, any>): Field {
  * @param jsonStr JSON string representation
  */
 function importJSON(jsonStr: string): FormSchemaImpl {
-  return JSONImporter.importJSON(jsonStr)
+  return JSONImporter.importJSON(jsonStr);
 }

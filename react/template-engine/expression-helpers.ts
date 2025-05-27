@@ -1,17 +1,17 @@
 export function templateVariableExpression(expression: string): string {
   //
-  return `\${${expression}}`
+  return `\${${expression}}`;
 }
 
 export function variableRef(path: string): string {
   //
-  return templateVariableExpression(path)
+  return templateVariableExpression(path);
 }
 
 export function functionCall(name: string, ...args: string[]): string {
   //
-  const argsStr = args.join(', ')
-  return templateVariableExpression(`${name}(${argsStr})`)
+  const argsStr = args.join(", ");
+  return templateVariableExpression(`${name}(${argsStr})`);
 }
 
 export function forEachExpression(
@@ -22,7 +22,7 @@ export function forEachExpression(
   //
   return templateVariableExpression(
     `forEach(${itemVar}, ${collection}, ${body})`,
-  )
+  );
 }
 
 export function forEachWithIndexExpression(
@@ -34,7 +34,7 @@ export function forEachWithIndexExpression(
   //
   return templateVariableExpression(
     `forEach(${itemVar}, ${indexVar}, ${collection}, ${body})`,
-  )
+  );
 }
 
 export function ternaryExpression(
@@ -45,7 +45,7 @@ export function ternaryExpression(
   //
   return templateVariableExpression(
     `${condition} ? ${trueValue} : ${falseValue}`,
-  )
+  );
 }
 
 export function nullCoalesceExpression(
@@ -53,12 +53,12 @@ export function nullCoalesceExpression(
   defaultValue: string,
 ): string {
   //
-  return templateVariableExpression(`${value} ?? ${defaultValue}`)
+  return templateVariableExpression(`${value} ?? ${defaultValue}`);
 }
 
 export function arrayAccessExpression(array: string, index: number): string {
   //
-  return templateVariableExpression(`${array}[${index}]`)
+  return templateVariableExpression(`${array}[${index}]`);
 }
 
 /**
@@ -71,7 +71,7 @@ export function conditionalValue(
   falseValue: string,
 ): string {
   //
-  return functionCall('if', condition, trueValue, falseValue) //
+  return functionCall("if", condition, trueValue, falseValue); //
 }
 
 /**
@@ -82,6 +82,6 @@ export function conditionalValue(
 export function formatValue(format: string, ...args: string[]): string {
   //
   // Ensure the format string is quoted if it's meant to be a literal string in the template expression
-  const allArgs = [`"${format}"`, ...args] //
-  return functionCall('format', ...allArgs) //
+  const allArgs = [`"${format}"`, ...args]; //
+  return functionCall("format", ...allArgs); //
 }

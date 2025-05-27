@@ -1,15 +1,15 @@
-import * as React from "react"
-import { Command as CommandPrimitive } from "cmdk"
-import { SearchIcon } from "lucide-react"
+import * as React from "react";
+import { Command as CommandPrimitive } from "cmdk";
+import { SearchIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
 function Command({
   className,
@@ -19,12 +19,12 @@ function Command({
     <CommandPrimitive
       data-slot="command"
       className={cn(
-        "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
-        className
+        "sf:bg-popover sf:text-popover-foreground sf:flex sf:h-full sf:w-full sf:flex-col sf:overflow-hidden sf:rounded-md",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandDialog({
@@ -33,22 +33,22 @@ function CommandDialog({
   children,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
-  title?: string
-  description?: string
+  title?: string;
+  description?: string;
 }) {
   return (
     <Dialog {...props}>
-      <DialogHeader className="sr-only">
+      <DialogHeader className="sf:sr-only">
         <DialogTitle>{title}</DialogTitle>
         <DialogDescription>{description}</DialogDescription>
       </DialogHeader>
-      <DialogContent className="overflow-hidden p-0">
-        <Command className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+      <DialogContent className="sf:overflow-hidden sf:p-0">
+        <Command className="[&_[cmdk-group-heading]]:sf:text-muted-foreground **:data-[slot=command-input-wrapper]:sf:h-12 [&_[cmdk-group-heading]]:sf:px-2 [&_[cmdk-group-heading]]:sf:font-medium [&_[cmdk-group]]:sf:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:sf:pt-0 [&_[cmdk-input-wrapper]_svg]:sf:h-5 [&_[cmdk-input-wrapper]_svg]:sf:w-5 [&_[cmdk-input]]:sf:h-12 [&_[cmdk-item]]:sf:px-2 [&_[cmdk-item]]:sf:py-3 [&_[cmdk-item]_svg]:sf:h-5 [&_[cmdk-item]_svg]:sf:w-5">
           {children}
         </Command>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function CommandInput({
@@ -58,19 +58,19 @@ function CommandInput({
   return (
     <div
       data-slot="command-input-wrapper"
-      className="flex h-9 items-center gap-2 border-b px-3"
+      className="sf:flex sf:h-9 sf:items-center sf:gap-2 sf:border-b sf:px-3"
     >
-      <SearchIcon className="size-4 shrink-0 opacity-50" />
+      <SearchIcon className="sf:size-4 sf:shrink-0 sf:opacity-50" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
-          className
+          "placeholder:sf:text-muted-foreground sf:flex sf:h-10 sf:w-full sf:rounded-md sf:bg-transparent sf:py-3 sf:text-sm sf:outline-hidden sf:disabled:cursor-not-allowed sf:disabled:opacity-50",
+          className,
         )}
         {...props}
       />
     </div>
-  )
+  );
 }
 
 function CommandList({
@@ -81,12 +81,12 @@ function CommandList({
     <CommandPrimitive.List
       data-slot="command-list"
       className={cn(
-        "max-h-[300px] scroll-py-1 overflow-x-hidden overflow-y-auto",
-        className
+        "sf:max-h-[300px] sf:scroll-py-1 sf:overflow-x-hidden sf:overflow-y-auto",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandEmpty({
@@ -95,10 +95,10 @@ function CommandEmpty({
   return (
     <CommandPrimitive.Empty
       data-slot="command-empty"
-      className="py-6 text-center text-sm"
+      className="sf:py-6 sf:text-center sf:text-sm"
       {...props}
     />
-  )
+  );
 }
 
 function CommandGroup({
@@ -109,12 +109,12 @@ function CommandGroup({
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        "text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
-        className
+        "sf:text-foreground [&_[cmdk-group-heading]]:sf:text-muted-foreground sf:overflow-hidden sf:p-1 [&_[cmdk-group-heading]]:sf:px-2 [&_[cmdk-group-heading]]:sf:py-1.5 [&_[cmdk-group-heading]]:sf:text-xs [&_[cmdk-group-heading]]:sf:font-medium",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandSeparator({
@@ -124,10 +124,10 @@ function CommandSeparator({
   return (
     <CommandPrimitive.Separator
       data-slot="command-separator"
-      className={cn("bg-border -mx-1 h-px", className)}
+      className={cn("sf:bg-border sf:-mx-1 sf:h-px", className)}
       {...props}
     />
-  )
+  );
 }
 
 function CommandItem({
@@ -138,12 +138,12 @@ function CommandItem({
     <CommandPrimitive.Item
       data-slot="command-item"
       className={cn(
-        "data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-        className
+        "data-[selected=true]:sf:bg-accent data-[selected=true]:sf:text-accent-foreground [&_svg:not([class*='text-'])]:sf:text-muted-foreground sf:relative sf:flex sf:cursor-default sf:items-center sf:gap-2 sf:rounded-sm sf:px-2 sf:py-1.5 sf:text-sm sf:outline-hidden sf:select-none data-[disabled=true]:sf:pointer-events-none data-[disabled=true]:sf:opacity-50 [&_svg]:sf:pointer-events-none [&_svg]:sf:shrink-0 [&_svg:not([class*='size-'])]:sf:size-4",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandShortcut({
@@ -154,12 +154,12 @@ function CommandShortcut({
     <span
       data-slot="command-shortcut"
       className={cn(
-        "text-muted-foreground ml-auto text-xs tracking-widest",
-        className
+        "sf:text-muted-foreground sf:ml-auto sf:text-xs sf:tracking-widest",
+        className,
       )}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -172,4 +172,4 @@ export {
   CommandItem,
   CommandShortcut,
   CommandSeparator,
-}
+};

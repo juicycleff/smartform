@@ -1,4 +1,4 @@
-import { OptionsBuilder } from './options-builder'
+import { OptionsBuilder } from "./options-builder";
 import {
   type Condition,
   ConditionType,
@@ -10,14 +10,15 @@ import {
   type Option,
   type OptionsConfig,
   OptionsType,
-  type ValidationRule, ValidationType,
-} from './types'
+  type ValidationRule,
+  ValidationType,
+} from "./types";
 
 /**
  * FieldBuilder provides a fluent API for creating form fields
  */
 export class FieldBuilder {
-  protected field: Field
+  protected field: Field;
 
   /**
    * Creates a new field builder
@@ -33,7 +34,7 @@ export class FieldBuilder {
       required: false,
       properties: {},
       order: 0,
-    }
+    };
   }
 
   /**
@@ -41,8 +42,8 @@ export class FieldBuilder {
    * @param required Whether the field is required
    */
   required(required = true): this {
-    this.field.required = required
-    return this
+    this.field.required = required;
+    return this;
   }
 
   /**
@@ -50,8 +51,8 @@ export class FieldBuilder {
    * @param placeholder Placeholder text
    */
   placeholder(placeholder: string): this {
-    this.field.placeholder = placeholder
-    return this
+    this.field.placeholder = placeholder;
+    return this;
   }
 
   /**
@@ -59,8 +60,8 @@ export class FieldBuilder {
    * @param helpText Help text to display
    */
   helpText(helpText: string): this {
-    this.field.helpText = helpText
-    return this
+    this.field.helpText = helpText;
+    return this;
   }
 
   /**
@@ -68,8 +69,8 @@ export class FieldBuilder {
    * @param value Default value
    */
   defaultValue(value: any): this {
-    this.field.defaultValue = value
-    return this
+    this.field.defaultValue = value;
+    return this;
   }
 
   /**
@@ -77,8 +78,8 @@ export class FieldBuilder {
    * @param order Display order
    */
   order(order: number): this {
-    this.field.order = order
-    return this
+    this.field.order = order;
+    return this;
   }
 
   /**
@@ -87,8 +88,8 @@ export class FieldBuilder {
    * @param value Property value
    */
   property(key: string, value: any): this {
-    this.field.properties![key] = value
-    return this
+    this.field.properties![key] = value;
+    return this;
   }
 
   /**
@@ -96,8 +97,8 @@ export class FieldBuilder {
    * @param condition Condition for requirement
    */
   requiredIf(condition: Condition): this {
-    this.field.requiredIf = condition
-    return this
+    this.field.requiredIf = condition;
+    return this;
   }
 
   /**
@@ -109,10 +110,10 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'eq',
+      operator: "eq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -124,10 +125,10 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'neq',
+      operator: "neq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -139,10 +140,10 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'gt',
+      operator: "gt",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -154,10 +155,10 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'lt',
+      operator: "lt",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -168,8 +169,8 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Exists,
       field: fieldId,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -180,8 +181,8 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.And,
       conditions,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -192,8 +193,8 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Or,
       conditions,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -204,8 +205,8 @@ export class FieldBuilder {
     this.field.requiredIf = {
       type: ConditionType.Expression,
       expression,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -213,8 +214,8 @@ export class FieldBuilder {
    * @param condition Condition determining visibility
    */
   visibleWhen(condition: Condition): this {
-    this.field.visible = condition
-    return this
+    this.field.visible = condition;
+    return this;
   }
 
   /**
@@ -226,10 +227,10 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'eq',
+      operator: "eq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -241,10 +242,10 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'neq',
+      operator: "neq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -256,10 +257,10 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'gt',
+      operator: "gt",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -271,10 +272,10 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'lt',
+      operator: "lt",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -285,8 +286,8 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Exists,
       field: fieldId,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -297,8 +298,8 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.And,
       conditions,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -309,8 +310,8 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Or,
       conditions,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -321,8 +322,8 @@ export class FieldBuilder {
     this.field.visible = {
       type: ConditionType.Expression,
       expression,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -330,8 +331,8 @@ export class FieldBuilder {
    * @param condition Condition determining enablement
    */
   enabledWhen(condition: Condition): this {
-    this.field.enabled = condition
-    return this
+    this.field.enabled = condition;
+    return this;
   }
 
   /**
@@ -343,10 +344,10 @@ export class FieldBuilder {
     this.field.enabled = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'eq',
+      operator: "eq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -358,10 +359,10 @@ export class FieldBuilder {
     this.field.enabled = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'neq',
+      operator: "neq",
       value,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -372,8 +373,8 @@ export class FieldBuilder {
     this.field.enabled = {
       type: ConditionType.Exists,
       field: fieldId,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -382,10 +383,10 @@ export class FieldBuilder {
    */
   addValidation(rule: ValidationRule): this {
     if (!this.field.validationRules) {
-      this.field.validationRules = []
+      this.field.validationRules = [];
     }
-    this.field.validationRules.push(rule)
-    return this
+    this.field.validationRules.push(rule);
+    return this;
   }
 
   /**
@@ -396,7 +397,7 @@ export class FieldBuilder {
     return this.addValidation({
       type: ValidationType.Required,
       message,
-    })
+    });
   }
 
   /**
@@ -409,7 +410,7 @@ export class FieldBuilder {
       type: ValidationType.MinLength,
       message,
       parameters: min,
-    })
+    });
   }
 
   /**
@@ -422,7 +423,7 @@ export class FieldBuilder {
       type: ValidationType.MaxLength,
       message,
       parameters: max,
-    })
+    });
   }
 
   /**
@@ -435,7 +436,7 @@ export class FieldBuilder {
       type: ValidationType.Pattern,
       message,
       parameters: pattern,
-    })
+    });
   }
 
   /**
@@ -448,7 +449,7 @@ export class FieldBuilder {
       type: ValidationType.Min,
       message,
       parameters: min,
-    })
+    });
   }
 
   /**
@@ -461,7 +462,7 @@ export class FieldBuilder {
       type: ValidationType.Max,
       message,
       parameters: max,
-    })
+    });
   }
 
   /**
@@ -472,7 +473,7 @@ export class FieldBuilder {
     return this.addValidation({
       type: ValidationType.Email,
       message,
-    })
+    });
   }
 
   /**
@@ -483,7 +484,7 @@ export class FieldBuilder {
     return this.addValidation({
       type: ValidationType.URL,
       message,
-    })
+    });
   }
 
   /**
@@ -496,7 +497,7 @@ export class FieldBuilder {
       type: ValidationType.FileType,
       message,
       parameters: allowedTypes,
-    })
+    });
   }
 
   /**
@@ -509,7 +510,7 @@ export class FieldBuilder {
       type: ValidationType.FileType,
       message,
       parameters: maxSize,
-    })
+    });
   }
 
   /**
@@ -525,7 +526,7 @@ export class FieldBuilder {
       type: ValidationType.ImageDimensions,
       message,
       parameters: dimensions,
-    })
+    });
   }
 
   /**
@@ -538,7 +539,7 @@ export class FieldBuilder {
       type: ValidationType.Dependency,
       message,
       parameters: dependency,
-    })
+    });
   }
 
   /**
@@ -549,7 +550,7 @@ export class FieldBuilder {
     return this.addValidation({
       type: ValidationType.Unique,
       message,
-    })
+    });
   }
 
   /**
@@ -562,7 +563,7 @@ export class FieldBuilder {
       type: ValidationType.Custom,
       message,
       parameters: params,
-    })
+    });
   }
 
   /**
@@ -573,8 +574,8 @@ export class FieldBuilder {
     this.field.options = {
       type: OptionsType.Static,
       static: options,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -586,35 +587,35 @@ export class FieldBuilder {
   ): DynamicOptionsFunctionBuilder {
     // Create a dynamic options source
     const source: DynamicSource = {
-      type: 'function',
+      type: "function",
       parameters: {},
-    }
+    };
 
     // Set function name or generate one for direct function
-    if (typeof functionNameOrFn === 'string') {
-      source.functionName = functionNameOrFn
+    if (typeof functionNameOrFn === "string") {
+      source.functionName = functionNameOrFn;
     } else {
       // Generate a unique name for the function
-      const uniqueName = `direct_func_${Date.now()}`
-      source.functionName = uniqueName
-      source.directFunction = functionNameOrFn
+      const uniqueName = `direct_func_${Date.now()}`;
+      source.functionName = uniqueName;
+      source.directFunction = functionNameOrFn;
     }
 
     // Create a DynamicOptionsBuilder to configure the source
-    const optionsBuilder = new OptionsBuilder().dynamic()
-    optionsBuilder.withSource(source)
+    const optionsBuilder = new OptionsBuilder().dynamic();
+    optionsBuilder.withSource(source);
 
     // Set the options on the field
-    this.field.options = optionsBuilder.build()
+    this.field.options = optionsBuilder.build();
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName: source.functionName,
       arguments: {},
-    }
+    };
 
     // Return a builder to configure the function options
-    return new DynamicOptionsFunctionBuilder(optionsBuilder, config)
+    return new DynamicOptionsFunctionBuilder(optionsBuilder, config);
   }
 
   /**
@@ -625,8 +626,8 @@ export class FieldBuilder {
     this.field.options = {
       type: OptionsType.Dynamic,
       dynamicSource: source,
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -638,27 +639,27 @@ export class FieldBuilder {
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config in field properties
-    this.field.properties!.dynamicFunction = config
+    this.field.properties!.dynamicFunction = config;
 
     // Return a builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
    * Checks if the field has a dynamic function
    */
   hasDynamicFunction(): boolean {
-    return this.field.properties!.dynamicFunction !== undefined
+    return this.field.properties!.dynamicFunction !== undefined;
   }
 
   /**
    * Gets the dynamic function config for the field
    */
   getDynamicFunctionConfig(): DynamicFieldConfig | undefined {
-    return this.field.properties!.dynamicFunction as DynamicFieldConfig
+    return this.field.properties!.dynamicFunction as DynamicFieldConfig;
   }
 
   /**
@@ -676,8 +677,8 @@ export class FieldBuilder {
         field: dependentField,
         valueMap,
       },
-    }
-    return this
+    };
+    return this;
   }
 
   /**
@@ -686,27 +687,27 @@ export class FieldBuilder {
    * @param label Option label
    */
   addOption(value: any, label: string): this {
-    const option: Option = { value, label }
+    const option: Option = { value, label };
 
     if (!this.field.options) {
       this.field.options = {
         type: OptionsType.Static,
         static: [option],
-      }
+      };
     } else if (this.field.options.type === OptionsType.Static) {
       if (!this.field.options.static) {
-        this.field.options.static = []
+        this.field.options.static = [];
       }
-      this.field.options.static.push(option)
+      this.field.options.static.push(option);
     } else {
       // Convert to static options if it was another type
       this.field.options = {
         type: OptionsType.Static,
         static: [option],
-      }
+      };
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -718,21 +719,21 @@ export class FieldBuilder {
       this.field.options = {
         type: OptionsType.Static,
         static: options,
-      }
+      };
     } else if (this.field.options.type === OptionsType.Static) {
       if (!this.field.options.static) {
-        this.field.options.static = []
+        this.field.options.static = [];
       }
-      this.field.options.static.push(...options)
+      this.field.options.static.push(...options);
     } else {
       // Convert to static options if it was another type
       this.field.options = {
         type: OptionsType.Static,
         static: options,
-      }
+      };
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -749,14 +750,14 @@ export class FieldBuilder {
     labelPath: string,
   ): this {
     const source: DynamicSource = {
-      type: 'api',
+      type: "api",
       endpoint,
       method,
       valuePath,
       labelPath,
-    }
+    };
 
-    return this.withDynamicOptions(source)
+    return this.withDynamicOptions(source);
   }
 
   /**
@@ -765,9 +766,9 @@ export class FieldBuilder {
    */
   withOptionsRefreshingOn(...fieldIDs: string[]): this {
     if (this.field.options?.dynamicSource) {
-      this.field.options.dynamicSource.refreshOn = fieldIDs
+      this.field.options.dynamicSource.refreshOn = fieldIDs;
     }
-    return this
+    return this;
   }
 
   /**
@@ -779,11 +780,11 @@ export class FieldBuilder {
       this.field.options = {
         type: OptionsType.Dynamic,
         dynamicSource: config.dynamicSource,
-      }
+      };
     } else {
-      this.field.options = config
+      this.field.options = config;
     }
-    return this
+    return this;
   }
 
   /**
@@ -791,8 +792,8 @@ export class FieldBuilder {
    * @param functionName Function name
    */
   dynamicValue(functionName: string): DynamicFunctionBuilder {
-    this.field.properties!.dynamicValue = true
-    return this.withDynamicFunction(functionName)
+    this.field.properties!.dynamicValue = true;
+    return this.withDynamicFunction(functionName);
   }
 
   /**
@@ -808,7 +809,7 @@ export class FieldBuilder {
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Add validation rule
     this.addValidation({
@@ -817,10 +818,10 @@ export class FieldBuilder {
       parameters: {
         dynamicFunction: config,
       },
-    })
+    });
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -834,22 +835,22 @@ export class FieldBuilder {
       this.field.type !== FieldType.Password
     ) {
       // Only applicable to text-like fields
-      return null
+      return null;
     }
 
-    this.field.properties!.autocomplete = true
+    this.field.properties!.autocomplete = true;
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config
-    this.field.properties!.autocompleteFunction = config
+    this.field.properties!.autocompleteFunction = config;
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -857,19 +858,19 @@ export class FieldBuilder {
    * @param functionName Function name
    */
   liveSearch(functionName: string): DynamicFunctionBuilder {
-    this.field.properties!.liveSearch = true
+    this.field.properties!.liveSearch = true;
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config
-    this.field.properties!.searchFunction = config
+    this.field.properties!.searchFunction = config;
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -877,19 +878,19 @@ export class FieldBuilder {
    * @param functionName Function name
    */
   dataSource(functionName: string): DynamicFunctionBuilder {
-    this.field.properties!.dataSource = true
+    this.field.properties!.dataSource = true;
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config
-    this.field.properties!.dataSourceFunction = config
+    this.field.properties!.dataSourceFunction = config;
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -897,19 +898,19 @@ export class FieldBuilder {
    * @param functionName Function name
    */
   formatter(functionName: string): DynamicFunctionBuilder {
-    this.field.properties!.formatter = true
+    this.field.properties!.formatter = true;
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config
-    this.field.properties!.formatterFunction = config
+    this.field.properties!.formatterFunction = config;
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -917,19 +918,19 @@ export class FieldBuilder {
    * @param functionName Function name
    */
   parser(functionName: string): DynamicFunctionBuilder {
-    this.field.properties!.parser = true
+    this.field.properties!.parser = true;
 
     // Create dynamic field config
     const config: DynamicFieldConfig = {
       functionName,
       arguments: {},
-    }
+    };
 
     // Store the config
-    this.field.properties!.parserFunction = config
+    this.field.properties!.parserFunction = config;
 
     // Return builder for configuring the dynamic function
-    return new DynamicFunctionBuilder(this, config)
+    return new DynamicFunctionBuilder(this, config);
   }
 
   /**
@@ -939,10 +940,10 @@ export class FieldBuilder {
    */
   defaultWhen(condition: Condition, value: any): this {
     if (!this.field.defaultWhen) {
-      this.field.defaultWhen = []
+      this.field.defaultWhen = [];
     }
-    this.field.defaultWhen.push({ condition, value })
-    return this
+    this.field.defaultWhen.push({ condition, value });
+    return this;
   }
 
   /**
@@ -955,10 +956,10 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'eq',
+      operator: "eq",
       value: equals,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -971,10 +972,10 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'neq',
+      operator: "neq",
       value: notEquals,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -987,10 +988,10 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'gt',
+      operator: "gt",
       value: greaterThan,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -1003,10 +1004,10 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Simple,
       field: fieldId,
-      operator: 'lt',
+      operator: "lt",
       value: lessThan,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -1018,8 +1019,8 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Exists,
       field: fieldId,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -1031,8 +1032,8 @@ export class FieldBuilder {
     const condition = {
       type: ConditionType.Expression,
       expression,
-    }
-    return this.defaultWhen(condition, value)
+    };
+    return this.defaultWhen(condition, value);
   }
 
   /**
@@ -1040,7 +1041,7 @@ export class FieldBuilder {
    * @returns The completed field
    */
   build(): Field {
-    return this.field
+    return this.field;
   }
 }
 
@@ -1048,8 +1049,8 @@ export class FieldBuilder {
  * DynamicFunctionBuilder provides a fluent API for configuring dynamic functions
  */
 export class DynamicFunctionBuilder {
-  fieldBuilder: FieldBuilder
-  config: DynamicFieldConfig
+  fieldBuilder: FieldBuilder;
+  config: DynamicFieldConfig;
 
   /**
    * Creates a new dynamic function builder
@@ -1057,8 +1058,8 @@ export class DynamicFunctionBuilder {
    * @param config Dynamic function configuration
    */
   constructor(fieldBuilder: FieldBuilder, config: DynamicFieldConfig) {
-    this.fieldBuilder = fieldBuilder
-    this.config = config
+    this.fieldBuilder = fieldBuilder;
+    this.config = config;
   }
 
   /**
@@ -1067,8 +1068,8 @@ export class DynamicFunctionBuilder {
    * @param value Argument value
    */
   withArgument(name: string, value: any): this {
-    this.config.arguments![name] = value
-    return this
+    this.config.arguments![name] = value;
+    return this;
   }
 
   /**
@@ -1077,9 +1078,9 @@ export class DynamicFunctionBuilder {
    */
   withArguments(args: Record<string, any>): this {
     for (const [name, value] of Object.entries(args)) {
-      this.config.arguments![name] = value
+      this.config.arguments![name] = value;
     }
-    return this
+    return this;
   }
 
   /**
@@ -1088,8 +1089,8 @@ export class DynamicFunctionBuilder {
    * @param fieldId Field ID to reference
    */
   withFieldReference(argName: string, fieldId: string): this {
-    this.config.arguments![argName] = `\${${fieldId}}`
-    return this
+    this.config.arguments![argName] = `\${${fieldId}}`;
+    return this;
   }
 
   /**
@@ -1097,9 +1098,9 @@ export class DynamicFunctionBuilder {
    * @param transformerName Transformer name
    */
   withTransformer(transformerName: string): this {
-    this.config.transformerName = transformerName
-    this.config.transformerParams = {}
-    return this
+    this.config.transformerName = transformerName;
+    this.config.transformerParams = {};
+    return this;
   }
 
   /**
@@ -1109,10 +1110,10 @@ export class DynamicFunctionBuilder {
    */
   withTransformerParam(name: string, value: any): this {
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams[name] = value
-    return this
+    this.config.transformerParams[name] = value;
+    return this;
   }
 
   /**
@@ -1120,7 +1121,7 @@ export class DynamicFunctionBuilder {
    * @returns The parent field builder
    */
   end(): FieldBuilder {
-    return this.fieldBuilder
+    return this.fieldBuilder;
   }
 }
 
@@ -1128,8 +1129,8 @@ export class DynamicFunctionBuilder {
  * DynamicOptionsFunctionBuilder provides a fluent API for configuring dynamic function options
  */
 export class DynamicOptionsFunctionBuilder {
-  dynamicOptionsBuilder: any // Using any temporarily
-  config: DynamicFieldConfig
+  dynamicOptionsBuilder: any; // Using any temporarily
+  config: DynamicFieldConfig;
 
   /**
    * Creates a new dynamic options function builder
@@ -1137,8 +1138,8 @@ export class DynamicOptionsFunctionBuilder {
    * @param config Dynamic function configuration
    */
   constructor(dynamicOptionsBuilder: any, config: DynamicFieldConfig) {
-    this.dynamicOptionsBuilder = dynamicOptionsBuilder
-    this.config = config
+    this.dynamicOptionsBuilder = dynamicOptionsBuilder;
+    this.config = config;
   }
 
   /**
@@ -1148,14 +1149,14 @@ export class DynamicOptionsFunctionBuilder {
    */
   withArgument(name: string, value: any): this {
     // Set in the config for backward compatibility
-    this.config.arguments![name] = value
+    this.config.arguments![name] = value;
 
     // Also set directly in the dynamic source parameters
     if (this.dynamicOptionsBuilder.config.dynamicSource?.parameters) {
-      this.dynamicOptionsBuilder.config.dynamicSource.parameters[name] = value
+      this.dynamicOptionsBuilder.config.dynamicSource.parameters[name] = value;
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -1164,9 +1165,9 @@ export class DynamicOptionsFunctionBuilder {
    */
   withArguments(args: Record<string, any>): this {
     for (const [name, value] of Object.entries(args)) {
-      this.withArgument(name, value)
+      this.withArgument(name, value);
     }
-    return this
+    return this;
   }
 
   /**
@@ -1175,8 +1176,8 @@ export class DynamicOptionsFunctionBuilder {
    * @param fieldId Field ID to reference
    */
   withFieldReference(argName: string, fieldId: string): this {
-    const fieldRef = `\${${fieldId}}`
-    return this.withArgument(argName, fieldRef)
+    const fieldRef = `\${${fieldId}}`;
+    return this.withArgument(argName, fieldRef);
   }
 
   /**
@@ -1185,18 +1186,18 @@ export class DynamicOptionsFunctionBuilder {
    */
   withTransformer(transformerName: string): this {
     // Set in the config for backward compatibility
-    this.config.transformerName = transformerName
-    this.config.transformerParams = {}
+    this.config.transformerName = transformerName;
+    this.config.transformerParams = {};
 
     // Also set in the dynamic source
     if (this.dynamicOptionsBuilder.config.dynamicSource?.parameters) {
       this.dynamicOptionsBuilder.config.dynamicSource.parameters.transformer =
-        transformerName
+        transformerName;
       this.dynamicOptionsBuilder.config.dynamicSource.parameters.transformerParams =
-        {}
+        {};
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -1207,21 +1208,21 @@ export class DynamicOptionsFunctionBuilder {
   withTransformerParam(name: string, value: any): this {
     // Set in the config for backward compatibility
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams[name] = value
+    this.config.transformerParams[name] = value;
 
     // Also set in the dynamic source
     if (this.dynamicOptionsBuilder.config.dynamicSource?.parameters) {
       const transformerParams =
         this.dynamicOptionsBuilder.config.dynamicSource.parameters
-          .transformerParams || {}
-      transformerParams[name] = value
+          .transformerParams || {};
+      transformerParams[name] = value;
       this.dynamicOptionsBuilder.config.dynamicSource.parameters.transformerParams =
-        transformerParams
+        transformerParams;
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -1229,10 +1230,10 @@ export class DynamicOptionsFunctionBuilder {
    */
   withSearchSupport(): this {
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams.enableSearch = true
-    return this
+    this.config.transformerParams.enableSearch = true;
+    return this;
   }
 
   /**
@@ -1241,10 +1242,10 @@ export class DynamicOptionsFunctionBuilder {
    */
   withFilterableFields(...fields: string[]): this {
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams.filterableFields = fields
-    return this
+    this.config.transformerParams.filterableFields = fields;
+    return this;
   }
 
   /**
@@ -1253,10 +1254,10 @@ export class DynamicOptionsFunctionBuilder {
    */
   withSortableFields(...fields: string[]): this {
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams.sortableFields = fields
-    return this
+    this.config.transformerParams.sortableFields = fields;
+    return this;
   }
 
   /**
@@ -1265,11 +1266,11 @@ export class DynamicOptionsFunctionBuilder {
    */
   withPagination(defaultLimit: number): this {
     if (!this.config.transformerParams) {
-      this.config.transformerParams = {}
+      this.config.transformerParams = {};
     }
-    this.config.transformerParams.enablePagination = true
-    this.config.transformerParams.defaultLimit = defaultLimit
-    return this
+    this.config.transformerParams.enablePagination = true;
+    this.config.transformerParams.defaultLimit = defaultLimit;
+    return this;
   }
 
   /**
@@ -1277,6 +1278,6 @@ export class DynamicOptionsFunctionBuilder {
    * @returns The parent dynamic options builder
    */
   end(): any {
-    return this.dynamicOptionsBuilder
+    return this.dynamicOptionsBuilder;
   }
 }

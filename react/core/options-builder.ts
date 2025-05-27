@@ -4,13 +4,13 @@ import {
   type Option,
   type OptionsConfig,
   OptionsType,
-} from './types'
+} from "./types";
 
 /**
  * OptionsBuilder provides a fluent API for creating field options
  */
 export class OptionsBuilder {
-  config: OptionsConfig
+  config: OptionsConfig;
 
   /**
    * Creates a new options builder
@@ -18,25 +18,25 @@ export class OptionsBuilder {
   constructor() {
     this.config = {
       type: OptionsType.Static,
-    }
+    };
   }
 
   /**
    * Creates a static options configuration
    */
   static(): StaticOptionsBuilder {
-    this.config.type = OptionsType.Static
-    this.config.static = []
-    return new StaticOptionsBuilder(this)
+    this.config.type = OptionsType.Static;
+    this.config.static = [];
+    return new StaticOptionsBuilder(this);
   }
 
   /**
    * Creates a dynamic options configuration
    */
   dynamic(): DynamicOptionsBuilder {
-    this.config.type = OptionsType.Dynamic
-    this.config.dynamicSource = {} as DynamicSource
-    return new DynamicOptionsBuilder(this)
+    this.config.type = OptionsType.Dynamic;
+    this.config.dynamicSource = {} as DynamicSource;
+    return new DynamicOptionsBuilder(this);
   }
 
   /**
@@ -44,12 +44,12 @@ export class OptionsBuilder {
    * @param field Field that options depend on
    */
   dependent(field: string): DependentOptionsBuilder {
-    this.config.type = OptionsType.Dependent
+    this.config.type = OptionsType.Dependent;
     this.config.dependency = {
       field,
       valueMap: {},
-    }
-    return new DependentOptionsBuilder(this)
+    };
+    return new DependentOptionsBuilder(this);
   }
 
   /**
@@ -57,16 +57,16 @@ export class OptionsBuilder {
    */
   getDynamicSource(): DynamicSource | undefined {
     if (this.config.type === OptionsType.Dynamic) {
-      return this.config.dynamicSource
+      return this.config.dynamicSource;
     }
-    return undefined
+    return undefined;
   }
 
   /**
    * Finalizes and returns the options configuration
    */
   build(): OptionsConfig {
-    return this.config
+    return this.config;
   }
 }
 
@@ -74,14 +74,14 @@ export class OptionsBuilder {
  * StaticOptionsBuilder provides a fluent API for creating static options
  */
 export class StaticOptionsBuilder {
-  private optionsBuilder: OptionsBuilder
+  private optionsBuilder: OptionsBuilder;
 
   /**
    * Creates a new static options builder
    * @param optionsBuilder Parent options builder
    */
   constructor(optionsBuilder: OptionsBuilder) {
-    this.optionsBuilder = optionsBuilder
+    this.optionsBuilder = optionsBuilder;
   }
 
   /**
@@ -93,14 +93,14 @@ export class StaticOptionsBuilder {
     const option: Option = {
       value,
       label,
-    }
+    };
 
     if (!this.optionsBuilder.config.static) {
-      this.optionsBuilder.config.static = []
+      this.optionsBuilder.config.static = [];
     }
 
-    this.optionsBuilder.config.static.push(option)
-    return this
+    this.optionsBuilder.config.static.push(option);
+    return this;
   }
 
   /**
@@ -114,14 +114,14 @@ export class StaticOptionsBuilder {
       value,
       label,
       icon,
-    }
+    };
 
     if (!this.optionsBuilder.config.static) {
-      this.optionsBuilder.config.static = []
+      this.optionsBuilder.config.static = [];
     }
 
-    this.optionsBuilder.config.static.push(option)
-    return this
+    this.optionsBuilder.config.static.push(option);
+    return this;
   }
 
   /**
@@ -130,18 +130,18 @@ export class StaticOptionsBuilder {
    */
   addOptions(...options: Option[]): this {
     if (!this.optionsBuilder.config.static) {
-      this.optionsBuilder.config.static = []
+      this.optionsBuilder.config.static = [];
     }
 
-    this.optionsBuilder.config.static.push(...options)
-    return this
+    this.optionsBuilder.config.static.push(...options);
+    return this;
   }
 
   /**
    * Finalizes and returns the options configuration
    */
   build(): OptionsConfig {
-    return this.optionsBuilder.build()
+    return this.optionsBuilder.build();
   }
 }
 
@@ -149,14 +149,14 @@ export class StaticOptionsBuilder {
  * DynamicOptionsBuilder provides a fluent API for creating dynamic options
  */
 export class DynamicOptionsBuilder {
-  private optionsBuilder: OptionsBuilder
+  private optionsBuilder: OptionsBuilder;
 
   /**
    * Creates a new dynamic options builder
    * @param optionsBuilder Parent options builder
    */
   constructor(optionsBuilder: OptionsBuilder) {
-    this.optionsBuilder = optionsBuilder
+    this.optionsBuilder = optionsBuilder;
   }
 
   /**
@@ -166,11 +166,11 @@ export class DynamicOptionsBuilder {
    */
   fromAPI(endpoint: string, method: string): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.type = 'api'
-      this.optionsBuilder.config.dynamicSource.endpoint = endpoint
-      this.optionsBuilder.config.dynamicSource.method = method
+      this.optionsBuilder.config.dynamicSource.type = "api";
+      this.optionsBuilder.config.dynamicSource.endpoint = endpoint;
+      this.optionsBuilder.config.dynamicSource.method = method;
     }
-    return this
+    return this;
   }
 
   /**
@@ -187,13 +187,13 @@ export class DynamicOptionsBuilder {
     labelPath: string,
   ): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.type = 'api'
-      this.optionsBuilder.config.dynamicSource.endpoint = endpoint
-      this.optionsBuilder.config.dynamicSource.method = method
-      this.optionsBuilder.config.dynamicSource.valuePath = valuePath
-      this.optionsBuilder.config.dynamicSource.labelPath = labelPath
+      this.optionsBuilder.config.dynamicSource.type = "api";
+      this.optionsBuilder.config.dynamicSource.endpoint = endpoint;
+      this.optionsBuilder.config.dynamicSource.method = method;
+      this.optionsBuilder.config.dynamicSource.valuePath = valuePath;
+      this.optionsBuilder.config.dynamicSource.labelPath = labelPath;
     }
-    return this
+    return this;
   }
 
   /**
@@ -204,11 +204,11 @@ export class DynamicOptionsBuilder {
   withHeader(key: string, value: string): this {
     if (this.optionsBuilder.config.dynamicSource) {
       if (!this.optionsBuilder.config.dynamicSource.headers) {
-        this.optionsBuilder.config.dynamicSource.headers = {}
+        this.optionsBuilder.config.dynamicSource.headers = {};
       }
-      this.optionsBuilder.config.dynamicSource.headers[key] = value
+      this.optionsBuilder.config.dynamicSource.headers[key] = value;
     }
-    return this
+    return this;
   }
 
   /**
@@ -219,11 +219,11 @@ export class DynamicOptionsBuilder {
   withParameter(key: string, value: any): this {
     if (this.optionsBuilder.config.dynamicSource) {
       if (!this.optionsBuilder.config.dynamicSource.parameters) {
-        this.optionsBuilder.config.dynamicSource.parameters = {}
+        this.optionsBuilder.config.dynamicSource.parameters = {};
       }
-      this.optionsBuilder.config.dynamicSource.parameters[key] = value
+      this.optionsBuilder.config.dynamicSource.parameters[key] = value;
     }
-    return this
+    return this;
   }
 
   /**
@@ -232,9 +232,9 @@ export class DynamicOptionsBuilder {
    */
   withValuePath(path: string): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.valuePath = path
+      this.optionsBuilder.config.dynamicSource.valuePath = path;
     }
-    return this
+    return this;
   }
 
   /**
@@ -243,9 +243,9 @@ export class DynamicOptionsBuilder {
    */
   withLabelPath(path: string): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.labelPath = path
+      this.optionsBuilder.config.dynamicSource.labelPath = path;
     }
-    return this
+    return this;
   }
 
   /**
@@ -254,9 +254,9 @@ export class DynamicOptionsBuilder {
    */
   refreshOn(...fieldIDs: string[]): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.refreshOn = fieldIDs
+      this.optionsBuilder.config.dynamicSource.refreshOn = fieldIDs;
     }
-    return this
+    return this;
   }
 
   /**
@@ -265,10 +265,10 @@ export class DynamicOptionsBuilder {
    */
   fromFunction(functionName: string): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.type = 'function'
-      this.optionsBuilder.config.dynamicSource.functionName = functionName
+      this.optionsBuilder.config.dynamicSource.type = "function";
+      this.optionsBuilder.config.dynamicSource.functionName = functionName;
     }
-    return this
+    return this;
   }
 
   /**
@@ -277,43 +277,44 @@ export class DynamicOptionsBuilder {
    */
   withFunctionOptions(functionNameOrFn: string | DynamicFunction): any {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource.type = 'function'
+      this.optionsBuilder.config.dynamicSource.type = "function";
 
       // Check if we got a function name (string) or a direct function reference
-      if (typeof functionNameOrFn === 'string') {
+      if (typeof functionNameOrFn === "string") {
         // It's a function name (string)
-        this.optionsBuilder.config.dynamicSource.functionName = functionNameOrFn
+        this.optionsBuilder.config.dynamicSource.functionName =
+          functionNameOrFn;
       } else {
         // It's a direct function reference
         // Generate a unique name for the function
-        const uniqueName = `direct_func_${Date.now()}`
-        this.optionsBuilder.config.dynamicSource.functionName = uniqueName
+        const uniqueName = `direct_func_${Date.now()}`;
+        this.optionsBuilder.config.dynamicSource.functionName = uniqueName;
         this.optionsBuilder.config.dynamicSource.directFunction =
-          functionNameOrFn
+          functionNameOrFn;
       }
 
       // Initialize parameters if needed
       if (!this.optionsBuilder.config.dynamicSource.parameters) {
-        this.optionsBuilder.config.dynamicSource.parameters = {}
+        this.optionsBuilder.config.dynamicSource.parameters = {};
       }
     }
 
     // Return a builder for configuring the function options
-    return new DynamicOptionsFunctionBuilder(this.optionsBuilder)
+    return new DynamicOptionsFunctionBuilder(this.optionsBuilder);
   }
 
   withSource(source: DynamicSource): this {
     if (this.optionsBuilder.config.dynamicSource) {
-      this.optionsBuilder.config.dynamicSource = source
+      this.optionsBuilder.config.dynamicSource = source;
     }
-    return this
+    return this;
   }
 
   /**
    * Finalizes and returns the options configuration
    */
   build(): OptionsConfig {
-    return this.optionsBuilder.build()
+    return this.optionsBuilder.build();
   }
 }
 
@@ -321,14 +322,14 @@ export class DynamicOptionsBuilder {
  * DependentOptionsBuilder provides a fluent API for creating dependent options
  */
 export class DependentOptionsBuilder {
-  private optionsBuilder: OptionsBuilder
+  private optionsBuilder: OptionsBuilder;
 
   /**
    * Creates a new dependent options builder
    * @param optionsBuilder Parent options builder
    */
   constructor(optionsBuilder: OptionsBuilder) {
-    this.optionsBuilder = optionsBuilder
+    this.optionsBuilder = optionsBuilder;
   }
 
   /**
@@ -336,7 +337,7 @@ export class DependentOptionsBuilder {
    * @param value Dependent field value
    */
   whenEquals(value: string): DependentValueOptionsBuilder {
-    return new DependentValueOptionsBuilder(this, value)
+    return new DependentValueOptionsBuilder(this, value);
   }
 
   /**
@@ -345,16 +346,16 @@ export class DependentOptionsBuilder {
    */
   withExpression(expression: string): this {
     if (this.optionsBuilder.config.dependency) {
-      this.optionsBuilder.config.dependency.expression = expression
+      this.optionsBuilder.config.dependency.expression = expression;
     }
-    return this
+    return this;
   }
 
   /**
    * Finalizes and returns the options configuration
    */
   build(): OptionsConfig {
-    return this.optionsBuilder.build()
+    return this.optionsBuilder.build();
   }
 }
 
@@ -362,8 +363,8 @@ export class DependentOptionsBuilder {
  * DependentValueOptionsBuilder provides a fluent API for creating options for a specific value
  */
 export class DependentValueOptionsBuilder {
-  private dependentOptionsBuilder: DependentOptionsBuilder
-  private value: string
+  private dependentOptionsBuilder: DependentOptionsBuilder;
+  private value: string;
 
   /**
    * Creates a new dependent value options builder
@@ -371,8 +372,8 @@ export class DependentValueOptionsBuilder {
    * @param value Dependent field value
    */
   constructor(dependentOptionsBuilder: DependentOptionsBuilder, value: string) {
-    this.dependentOptionsBuilder = dependentOptionsBuilder
-    this.value = value
+    this.dependentOptionsBuilder = dependentOptionsBuilder;
+    this.value = value;
   }
 
   /**
@@ -384,19 +385,19 @@ export class DependentValueOptionsBuilder {
     const option: Option = {
       value,
       label,
-    }
+    };
 
-    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config
+    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config;
 
     if (config.dependency?.valueMap) {
       if (!config.dependency.valueMap[this.value]) {
-        config.dependency.valueMap[this.value] = []
+        config.dependency.valueMap[this.value] = [];
       }
 
-      config.dependency.valueMap[this.value].push(option)
+      config.dependency.valueMap[this.value].push(option);
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -410,19 +411,19 @@ export class DependentValueOptionsBuilder {
       value,
       label,
       icon,
-    }
+    };
 
-    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config
+    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config;
 
     if (config.dependency?.valueMap) {
       if (!config.dependency.valueMap[this.value]) {
-        config.dependency.valueMap[this.value] = []
+        config.dependency.valueMap[this.value] = [];
       }
 
-      config.dependency.valueMap[this.value].push(option)
+      config.dependency.valueMap[this.value].push(option);
     }
 
-    return this
+    return this;
   }
 
   /**
@@ -430,24 +431,24 @@ export class DependentValueOptionsBuilder {
    * @param options Options to add
    */
   addOptions(...options: Option[]): this {
-    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config
+    const config = (this.dependentOptionsBuilder as any).optionsBuilder.config;
 
     if (config.dependency?.valueMap) {
       if (!config.dependency.valueMap[this.value]) {
-        config.dependency.valueMap[this.value] = []
+        config.dependency.valueMap[this.value] = [];
       }
 
-      config.dependency.valueMap[this.value].push(...options)
+      config.dependency.valueMap[this.value].push(...options);
     }
 
-    return this
+    return this;
   }
 
   /**
    * Returns to the parent dependent options builder
    */
   end(): DependentOptionsBuilder {
-    return this.dependentOptionsBuilder
+    return this.dependentOptionsBuilder;
   }
 }
 
@@ -464,7 +465,7 @@ export function newOption(value: any, label: string): Option {
   return {
     value,
     label,
-  }
+  };
 }
 
 /**
@@ -482,21 +483,21 @@ export function newOptionWithIcon(
     value,
     label,
     icon,
-  }
+  };
 }
 
 /**
  * DynamicOptionsFunctionBuilder provides a fluent API for configuring dynamic function options
  */
 export class DynamicOptionsFunctionBuilder {
-  private optionsBuilder: OptionsBuilder
+  private optionsBuilder: OptionsBuilder;
 
   /**
    * Creates a new dynamic options function builder
    * @param optionsBuilder Parent options builder
    */
   constructor(optionsBuilder: OptionsBuilder) {
-    this.optionsBuilder = optionsBuilder
+    this.optionsBuilder = optionsBuilder;
   }
 
   /**
@@ -506,9 +507,9 @@ export class DynamicOptionsFunctionBuilder {
    */
   withArgument(name: string, value: any): this {
     if (this.optionsBuilder.config.dynamicSource?.parameters) {
-      this.optionsBuilder.config.dynamicSource.parameters[name] = value
+      this.optionsBuilder.config.dynamicSource.parameters[name] = value;
     }
-    return this
+    return this;
   }
 
   /**
@@ -518,10 +519,10 @@ export class DynamicOptionsFunctionBuilder {
   withArguments(args: Record<string, any>): this {
     if (this.optionsBuilder.config.dynamicSource?.parameters) {
       for (const [name, value] of Object.entries(args)) {
-        this.optionsBuilder.config.dynamicSource.parameters[name] = value
+        this.optionsBuilder.config.dynamicSource.parameters[name] = value;
       }
     }
-    return this
+    return this;
   }
 
   /**
@@ -532,15 +533,15 @@ export class DynamicOptionsFunctionBuilder {
   withFieldReference(argName: string, fieldId: string): this {
     if (this.optionsBuilder.config.dynamicSource?.parameters) {
       this.optionsBuilder.config.dynamicSource.parameters[argName] =
-        `\${${fieldId}}`
+        `\${${fieldId}}`;
     }
-    return this
+    return this;
   }
 
   /**
    * Finalizes and returns the options configuration
    */
   build(): OptionsConfig {
-    return this.optionsBuilder.build()
+    return this.optionsBuilder.build();
   }
 }

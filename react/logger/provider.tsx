@@ -3,22 +3,22 @@
  *
  * React Context Provider for the logger configuration
  */
-import type React from 'react'
-import { createContext, useContext, useMemo } from 'react'
-import Logger, { type LoggerConfig } from './logger'
+import type React from "react";
+import { createContext, useContext, useMemo } from "react";
+import Logger, { type LoggerConfig } from "./logger";
 
 // The type for our React context
 type LoggerContextType = {
-  logger: typeof Logger
-  updateConfig: (config: Partial<LoggerConfig>) => void
-}
+  logger: typeof Logger;
+  updateConfig: (config: Partial<LoggerConfig>) => void;
+};
 
 // Create the context with a default value
-const LoggerContext = createContext<LoggerContextType | undefined>(undefined)
+const LoggerContext = createContext<LoggerContextType | undefined>(undefined);
 
 export interface LoggerProviderProps {
-  initialConfig?: Partial<LoggerConfig>
-  children: React.ReactNode
+  initialConfig?: Partial<LoggerConfig>;
+  children: React.ReactNode;
 }
 
 /**
@@ -33,24 +33,24 @@ export function LoggerProvider({
   // Apply initial configuration if provided
   useMemo(() => {
     if (initialConfig) {
-      Object.assign(Logger.config, initialConfig)
+      Object.assign(Logger.config, initialConfig);
     }
-  }, [initialConfig])
+  }, [initialConfig]);
 
   // Function to update logger configuration
   const updateConfig = (config: Partial<LoggerConfig>) => {
-    Object.assign(Logger.config, config)
-  }
+    Object.assign(Logger.config, config);
+  };
 
   const contextValue = useMemo(() => {
-    return { logger: Logger, updateConfig }
-  }, [])
+    return { logger: Logger, updateConfig };
+  }, []);
 
   return (
     <LoggerContext.Provider value={contextValue}>
       {children}
     </LoggerContext.Provider>
-  )
+  );
 }
 
 /**
@@ -59,11 +59,11 @@ export function LoggerProvider({
  * @returns The logger context
  */
 export function useLoggerContext() {
-  const context = useContext(LoggerContext)
+  const context = useContext(LoggerContext);
   if (context === undefined) {
-    throw new Error('useLoggerContext must be used within a LoggerProvider')
+    throw new Error("useLoggerContext must be used within a LoggerProvider");
   }
-  return context
+  return context;
 }
 
-export default LoggerProvider
+export default LoggerProvider;

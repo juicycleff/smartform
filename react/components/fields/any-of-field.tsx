@@ -1,4 +1,4 @@
-import { Checkbox } from '../ui/checkbox'
+import { Checkbox } from "../ui/checkbox";
 import {
   FormControl,
   FormDescription,
@@ -6,24 +6,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '../ui/form'
-import type React from 'react'
-import { useFormContext } from 'react-hook-form'
-import type { Field } from '../../core'
-import { useSmartForm } from '../context'
-import { FormField as SmartFormField } from '../form-field'
+} from "../ui/form";
+import type React from "react";
+import { useFormContext } from "react-hook-form";
+import type { Field } from "../../core";
+import { useSmartForm } from "../context";
+import { FormField as SmartFormField } from "../form-field";
 
 interface AnyOfFieldProps {
-  field: Field
-  path: string
+  field: Field;
+  path: string;
 }
 
 const AnyOfField: React.FC<AnyOfFieldProps> = ({ field, path }) => {
-  const { isFieldEnabled, isFieldRequired } = useSmartForm()
-  const { control, watch } = useFormContext()
+  const { isFieldEnabled, isFieldRequired } = useSmartForm();
+  const { control, watch } = useFormContext();
 
-  const disabled = !isFieldEnabled(field)
-  const required = isFieldRequired(field)
+  const disabled = !isFieldEnabled(field);
+  const required = isFieldRequired(field);
 
   if (!field.nested || field.nested.length === 0) {
     return (
@@ -32,13 +32,13 @@ const AnyOfField: React.FC<AnyOfFieldProps> = ({ field, path }) => {
           Error: AnyOf field {field.id} has no options defined
         </p>
       </div>
-    )
+    );
   }
 
   // Create checkboxes for each option
-  const optionFields = field.nested.map(option => {
-    const optionPath = `${path}.__selected.${option.id}`
-    const isSelected = watch(optionPath) || false
+  const optionFields = field.nested.map((option) => {
+    const optionPath = `${path}.__selected.${option.id}`;
+    const isSelected = watch(optionPath) || false;
 
     return (
       <div key={option.id} className="space-y-4">
@@ -65,14 +65,14 @@ const AnyOfField: React.FC<AnyOfFieldProps> = ({ field, path }) => {
           </div>
         )}
       </div>
-    )
-  })
+    );
+  });
 
   return (
     <FormItem className="space-y-4 rounded-md border p-4">
       <FormLabel
         className={
-          required ? 'after:ml-0.5 after:text-red-500 after:content-["*"]' : ''
+          required ? 'after:ml-0.5 after:text-red-500 after:content-["*"]' : ""
         }
       >
         {field.label}
@@ -83,7 +83,7 @@ const AnyOfField: React.FC<AnyOfFieldProps> = ({ field, path }) => {
       {field.helpText && <FormDescription>{field.helpText}</FormDescription>}
       <FormMessage />
     </FormItem>
-  )
-}
+  );
+};
 
-export default AnyOfField
+export default AnyOfField;

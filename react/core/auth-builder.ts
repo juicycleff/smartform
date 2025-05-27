@@ -1,5 +1,5 @@
-import { FieldBuilder } from './field-builder'
-import { AuthStrategy, type Field } from './types'
+import { FieldBuilder } from "./field-builder";
+import { AuthStrategy, type Field } from "./types";
 
 /**
  * Base type for all auth builder types
@@ -8,17 +8,17 @@ export interface AuthFieldBuilderBase {
   /**
    * Common methods all auth builders should implement
    */
-  build(): Field
-  required(required: boolean): AuthFieldBuilderBase
-  helpText(helpText: string): AuthFieldBuilderBase
-  serviceId(serviceId: string): AuthFieldBuilderBase
+  build(): Field;
+  required(required: boolean): AuthFieldBuilderBase;
+  helpText(helpText: string): AuthFieldBuilderBase;
+  serviceId(serviceId: string): AuthFieldBuilderBase;
 }
 
 /**
  * OAuth2Builder provides a fluent API for creating OAuth2 authentication fields
  */
 export class OAuth2Builder implements AuthFieldBuilderBase {
-  private authField: FieldBuilder
+  private authField: FieldBuilder;
 
   /**
    * Creates a new OAuth2 authentication field builder
@@ -26,8 +26,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param label Field display label
    */
   constructor(id: string, label: string) {
-    this.authField = new FieldBuilder(id, 'auth', label)
-    this.authField.property('authType', AuthStrategy.OAuth2)
+    this.authField = new FieldBuilder(id, "auth", label);
+    this.authField.property("authType", AuthStrategy.OAuth2);
   }
 
   /**
@@ -35,8 +35,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param clientId Client ID
    */
   clientId(clientId: string): OAuth2Builder {
-    this.authField.property('clientId', clientId)
-    return this
+    this.authField.property("clientId", clientId);
+    return this;
   }
 
   /**
@@ -44,8 +44,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param clientSecret Client secret
    */
   clientSecret(clientSecret: string): OAuth2Builder {
-    this.authField.property('clientSecret', clientSecret)
-    return this
+    this.authField.property("clientSecret", clientSecret);
+    return this;
   }
 
   /**
@@ -53,8 +53,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param url Authorization URL
    */
   authorizationUrl(url: string): OAuth2Builder {
-    this.authField.property('authorizationUrl', url)
-    return this
+    this.authField.property("authorizationUrl", url);
+    return this;
   }
 
   /**
@@ -62,8 +62,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param url Token URL
    */
   tokenUrl(url: string): OAuth2Builder {
-    this.authField.property('tokenUrl', url)
-    return this
+    this.authField.property("tokenUrl", url);
+    return this;
   }
 
   /**
@@ -71,8 +71,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param scopes Scopes
    */
   scopes(scopes: string[]): OAuth2Builder {
-    this.authField.property('scopes', scopes)
-    return this
+    this.authField.property("scopes", scopes);
+    return this;
   }
 
   /**
@@ -80,8 +80,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param uri Redirect URI
    */
   redirectUri(uri: string): OAuth2Builder {
-    this.authField.property('redirectUri', uri)
-    return this
+    this.authField.property("redirectUri", uri);
+    return this;
   }
 
   /**
@@ -89,8 +89,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param responseType Response type
    */
   responseType(responseType: string): OAuth2Builder {
-    this.authField.property('responseType', responseType)
-    return this
+    this.authField.property("responseType", responseType);
+    return this;
   }
 
   /**
@@ -98,8 +98,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param useState Whether to use state
    */
   state(useState: boolean): OAuth2Builder {
-    this.authField.property('useState', useState)
-    return this
+    this.authField.property("useState", useState);
+    return this;
   }
 
   /**
@@ -107,8 +107,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param usePKCE Whether to use PKCE
    */
   pkce(usePKCE: boolean): OAuth2Builder {
-    this.authField.property('usePKCE', usePKCE)
-    return this
+    this.authField.property("usePKCE", usePKCE);
+    return this;
   }
 
   /**
@@ -116,8 +116,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param autoRefresh Whether to auto-refresh
    */
   autoRefresh(autoRefresh: boolean): OAuth2Builder {
-    this.authField.property('autoRefresh', autoRefresh)
-    return this
+    this.authField.property("autoRefresh", autoRefresh);
+    return this;
   }
 
   /**
@@ -125,8 +125,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param required Whether the field is required
    */
   required(required = true): OAuth2Builder {
-    this.authField.required(required)
-    return this
+    this.authField.required(required);
+    return this;
   }
 
   /**
@@ -134,8 +134,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param helpText Help text
    */
   helpText(helpText: string): OAuth2Builder {
-    this.authField.helpText(helpText)
-    return this
+    this.authField.helpText(helpText);
+    return this;
   }
 
   /**
@@ -143,8 +143,8 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @param serviceId Service ID
    */
   serviceId(serviceId: string): OAuth2Builder {
-    this.authField.property('serviceId', serviceId)
-    return this
+    this.authField.property("serviceId", serviceId);
+    return this;
   }
 
   /**
@@ -152,7 +152,7 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
    * @returns Completed authentication field
    */
   build(): Field {
-    return this.authField.build()
+    return this.authField.build();
   }
 }
 
@@ -160,7 +160,7 @@ export class OAuth2Builder implements AuthFieldBuilderBase {
  * BasicAuthBuilder provides a fluent API for creating Basic authentication fields
  */
 export class BasicAuthBuilder implements AuthFieldBuilderBase {
-  private authField: FieldBuilder
+  private authField: FieldBuilder;
 
   /**
    * Creates a new Basic authentication field builder
@@ -168,8 +168,8 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param label Field display label
    */
   constructor(id: string, label: string) {
-    this.authField = new FieldBuilder(id, 'auth', label)
-    this.authField.property('authType', AuthStrategy.Basic)
+    this.authField = new FieldBuilder(id, "auth", label);
+    this.authField.property("authType", AuthStrategy.Basic);
   }
 
   /**
@@ -178,11 +178,11 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param placeholder Field placeholder
    */
   usernameField(label: string, placeholder: string): BasicAuthBuilder {
-    this.authField.property('usernameField', {
+    this.authField.property("usernameField", {
       label,
       placeholder,
-    })
-    return this
+    });
+    return this;
   }
 
   /**
@@ -191,11 +191,11 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param placeholder Field placeholder
    */
   passwordField(label: string, placeholder: string): BasicAuthBuilder {
-    this.authField.property('passwordField', {
+    this.authField.property("passwordField", {
       label,
       placeholder,
-    })
-    return this
+    });
+    return this;
   }
 
   /**
@@ -204,11 +204,11 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param defaultValue Default value
    */
   rememberMe(label: string, defaultValue: boolean): BasicAuthBuilder {
-    this.authField.property('rememberMe', {
+    this.authField.property("rememberMe", {
       label,
       defaultValue,
-    })
-    return this
+    });
+    return this;
   }
 
   /**
@@ -216,8 +216,8 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param required Whether the field is required
    */
   required(required = true): BasicAuthBuilder {
-    this.authField.required(required)
-    return this
+    this.authField.required(required);
+    return this;
   }
 
   /**
@@ -225,8 +225,8 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param helpText Help text
    */
   helpText(helpText: string): BasicAuthBuilder {
-    this.authField.helpText(helpText)
-    return this
+    this.authField.helpText(helpText);
+    return this;
   }
 
   /**
@@ -234,8 +234,8 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @param serviceId Service ID
    */
   serviceId(serviceId: string): BasicAuthBuilder {
-    this.authField.property('serviceId', serviceId)
-    return this
+    this.authField.property("serviceId", serviceId);
+    return this;
   }
 
   /**
@@ -243,7 +243,7 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
    * @returns Completed authentication field
    */
   build(): Field {
-    return this.authField.build()
+    return this.authField.build();
   }
 }
 
@@ -251,7 +251,7 @@ export class BasicAuthBuilder implements AuthFieldBuilderBase {
  * APIKeyBuilder provides a fluent API for creating API key authentication fields
  */
 export class APIKeyBuilder implements AuthFieldBuilderBase {
-  private authField: FieldBuilder
+  private authField: FieldBuilder;
 
   /**
    * Creates a new API key authentication field builder
@@ -259,8 +259,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param label Field display label
    */
   constructor(id: string, label: string) {
-    this.authField = new FieldBuilder(id, 'auth', label)
-    this.authField.property('authType', AuthStrategy.APIKey)
+    this.authField = new FieldBuilder(id, "auth", label);
+    this.authField.property("authType", AuthStrategy.APIKey);
   }
 
   /**
@@ -268,8 +268,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param name Key name
    */
   keyName(name: string): APIKeyBuilder {
-    this.authField.property('keyName', name)
-    return this
+    this.authField.property("keyName", name);
+    return this;
   }
 
   /**
@@ -277,8 +277,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param location Key location
    */
   keyLocation(location: string): APIKeyBuilder {
-    this.authField.property('keyLocation', location)
-    return this
+    this.authField.property("keyLocation", location);
+    return this;
   }
 
   /**
@@ -286,8 +286,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param placeholder Placeholder text
    */
   placeholder(placeholder: string): APIKeyBuilder {
-    this.authField.property('placeholder', placeholder)
-    return this
+    this.authField.property("placeholder", placeholder);
+    return this;
   }
 
   /**
@@ -295,8 +295,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param required Whether the field is required
    */
   required(required = true): APIKeyBuilder {
-    this.authField.required(required)
-    return this
+    this.authField.required(required);
+    return this;
   }
 
   /**
@@ -304,8 +304,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param helpText Help text
    */
   helpText(helpText: string): APIKeyBuilder {
-    this.authField.helpText(helpText)
-    return this
+    this.authField.helpText(helpText);
+    return this;
   }
 
   /**
@@ -313,8 +313,8 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @param serviceId Service ID
    */
   serviceId(serviceId: string): APIKeyBuilder {
-    this.authField.property('serviceId', serviceId)
-    return this
+    this.authField.property("serviceId", serviceId);
+    return this;
   }
 
   /**
@@ -322,7 +322,7 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
    * @returns Completed authentication field
    */
   build(): Field {
-    return this.authField.build()
+    return this.authField.build();
   }
 }
 
@@ -330,7 +330,7 @@ export class APIKeyBuilder implements AuthFieldBuilderBase {
  * JWTBuilder provides a fluent API for creating JWT authentication fields
  */
 export class JWTBuilder implements AuthFieldBuilderBase {
-  private authField: FieldBuilder
+  private authField: FieldBuilder;
 
   /**
    * Creates a new JWT authentication field builder
@@ -338,8 +338,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param label Field display label
    */
   constructor(id: string, label: string) {
-    this.authField = new FieldBuilder(id, 'auth', label)
-    this.authField.property('authType', AuthStrategy.JWT)
+    this.authField = new FieldBuilder(id, "auth", label);
+    this.authField.property("authType", AuthStrategy.JWT);
   }
 
   /**
@@ -347,8 +347,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param key Secret key
    */
   secretKey(key: string): JWTBuilder {
-    this.authField.property('secretKey', key)
-    return this
+    this.authField.property("secretKey", key);
+    return this;
   }
 
   /**
@@ -356,8 +356,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param algorithm Signing algorithm
    */
   algorithm(algorithm: string): JWTBuilder {
-    this.authField.property('algorithm', algorithm)
-    return this
+    this.authField.property("algorithm", algorithm);
+    return this;
   }
 
   /**
@@ -365,8 +365,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param issuer Issuer claim
    */
   issuer(issuer: string): JWTBuilder {
-    this.authField.property('issuer', issuer)
-    return this
+    this.authField.property("issuer", issuer);
+    return this;
   }
 
   /**
@@ -374,8 +374,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param audience Audience claim
    */
   audience(audience: string): JWTBuilder {
-    this.authField.property('audience', audience)
-    return this
+    this.authField.property("audience", audience);
+    return this;
   }
 
   /**
@@ -383,8 +383,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param seconds Expiry time in seconds
    */
   tokenExpiry(seconds: number): JWTBuilder {
-    this.authField.property('expirySeconds', seconds)
-    return this
+    this.authField.property("expirySeconds", seconds);
+    return this;
   }
 
   /**
@@ -392,8 +392,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param required Whether the field is required
    */
   required(required = true): JWTBuilder {
-    this.authField.required(required)
-    return this
+    this.authField.required(required);
+    return this;
   }
 
   /**
@@ -401,8 +401,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param helpText Help text
    */
   helpText(helpText: string): JWTBuilder {
-    this.authField.helpText(helpText)
-    return this
+    this.authField.helpText(helpText);
+    return this;
   }
 
   /**
@@ -410,8 +410,8 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @param serviceId Service ID
    */
   serviceId(serviceId: string): JWTBuilder {
-    this.authField.property('serviceId', serviceId)
-    return this
+    this.authField.property("serviceId", serviceId);
+    return this;
   }
 
   /**
@@ -419,7 +419,7 @@ export class JWTBuilder implements AuthFieldBuilderBase {
    * @returns Completed authentication field
    */
   build(): Field {
-    return this.authField.build()
+    return this.authField.build();
   }
 }
 
@@ -427,7 +427,7 @@ export class JWTBuilder implements AuthFieldBuilderBase {
  * SAMLBuilder provides a fluent API for creating SAML authentication fields
  */
 export class SAMLBuilder implements AuthFieldBuilderBase {
-  private authField: FieldBuilder
+  private authField: FieldBuilder;
 
   /**
    * Creates a new SAML authentication field builder
@@ -435,8 +435,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param label Field display label
    */
   constructor(id: string, label: string) {
-    this.authField = new FieldBuilder(id, 'auth', label)
-    this.authField.property('authType', AuthStrategy.SAML)
+    this.authField = new FieldBuilder(id, "auth", label);
+    this.authField.property("authType", AuthStrategy.SAML);
   }
 
   /**
@@ -444,8 +444,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param url Metadata URL
    */
   idPMetadataURL(url: string): SAMLBuilder {
-    this.authField.property('idpMetadataUrl', url)
-    return this
+    this.authField.property("idpMetadataUrl", url);
+    return this;
   }
 
   /**
@@ -453,8 +453,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param metadata Metadata XML
    */
   idPMetadata(metadata: string): SAMLBuilder {
-    this.authField.property('idpMetadata', metadata)
-    return this
+    this.authField.property("idpMetadata", metadata);
+    return this;
   }
 
   /**
@@ -462,8 +462,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param url ACS URL
    */
   assertionConsumerServiceURL(url: string): SAMLBuilder {
-    this.authField.property('assertionConsumerServiceUrl', url)
-    return this
+    this.authField.property("assertionConsumerServiceUrl", url);
+    return this;
   }
 
   /**
@@ -471,8 +471,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param entityId Entity ID
    */
   spEntityId(entityId: string): SAMLBuilder {
-    this.authField.property('spEntityId', entityId)
-    return this
+    this.authField.property("spEntityId", entityId);
+    return this;
   }
 
   /**
@@ -480,8 +480,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param mapping Attribute mapping
    */
   attributeMapping(mapping: Record<string, string>): SAMLBuilder {
-    this.authField.property('attributeMapping', mapping)
-    return this
+    this.authField.property("attributeMapping", mapping);
+    return this;
   }
 
   /**
@@ -489,8 +489,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param sign Whether to sign requests
    */
   signRequests(sign: boolean): SAMLBuilder {
-    this.authField.property('signRequests', sign)
-    return this
+    this.authField.property("signRequests", sign);
+    return this;
   }
 
   /**
@@ -498,8 +498,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param required Whether the field is required
    */
   required(required = true): SAMLBuilder {
-    this.authField.required(required)
-    return this
+    this.authField.required(required);
+    return this;
   }
 
   /**
@@ -507,8 +507,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param helpText Help text
    */
   helpText(helpText: string): SAMLBuilder {
-    this.authField.helpText(helpText)
-    return this
+    this.authField.helpText(helpText);
+    return this;
   }
 
   /**
@@ -516,8 +516,8 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @param serviceId Service ID
    */
   serviceId(serviceId: string): SAMLBuilder {
-    this.authField.property('serviceId', serviceId)
-    return this
+    this.authField.property("serviceId", serviceId);
+    return this;
   }
 
   /**
@@ -525,6 +525,6 @@ export class SAMLBuilder implements AuthFieldBuilderBase {
    * @returns Completed authentication field
    */
   build(): Field {
-    return this.authField.build()
+    return this.authField.build();
   }
 }

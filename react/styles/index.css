@@ -112,9 +112,9 @@
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    @apply sf:border-border sf:outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply sf:bg-background sf:text-foreground;
   }
 }

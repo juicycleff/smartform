@@ -5,20 +5,20 @@ import {
   type FormSchema,
   type ValidationResult,
   type ValidationRule,
-} from './types'
+} from "./types";
 
 /**
  * Validator handles form validation against a schema
  */
 export class Validator {
-  private schema: FormSchema
+  private schema: FormSchema;
 
   /**
    * Creates a new validator for a schema
    * @param schema Form schema to validate against
    */
   constructor(schema: FormSchema) {
-    this.schema = schema
+    this.schema = schema;
   }
 
   /**
@@ -30,15 +30,15 @@ export class Validator {
     const result: ValidationResult = {
       valid: true,
       errors: [],
-    }
+    };
 
     // Validate each field
     for (const field of this.schema.fields) {
-      this.validateField(field, data, '', result)
+      this.validateField(field, data, "", result);
     }
 
-    result.valid = result.errors?.length === 0
-    return result
+    result.valid = result.errors?.length === 0;
+    return result;
   }
 
   /**
@@ -54,43 +54,43 @@ export class Validator {
     prefix: string,
     result: ValidationResult,
   ): void {
-    const fieldPath = prefix ? `${prefix}.${field.id}` : field.id
+    const fieldPath = prefix ? `${prefix}.${field.id}` : field.id;
 
     // Skip validation if field is not visible
     if (field.visible && !this.evaluateCondition(field.visible, data)) {
-      return
+      return;
     }
 
     // Get field value (support nested path like "address.street")
-    const value = this.getValueByPath(data, fieldPath)
+    const value = this.getValueByPath(data, fieldPath);
 
     // Check required fields
     if (field.required) {
-      const isEmpty = this.isEmpty(value)
+      const isEmpty = this.isEmpty(value);
       if (isEmpty) {
         result.errors?.push({
           fieldId: fieldPath,
           message: `${field.label} is required`,
-          ruleType: 'required',
-        })
+          ruleType: "required",
+        });
       }
     }
 
     // Check conditional required (requiredIf)
     if (field.requiredIf && this.evaluateCondition(field.requiredIf, data)) {
-      const isEmpty = this.isEmpty(value)
+      const isEmpty = this.isEmpty(value);
       if (isEmpty) {
         result.errors?.push({
           fieldId: fieldPath,
           message: `${field.label} is required based on other field values`,
-          ruleType: 'requiredIf',
-        })
+          ruleType: "requiredIf",
+        });
       }
     }
 
     // Skip other validations if value is empty and not required
     if (this.isEmpty(value)) {
-      return
+      return;
     }
 
     // Apply field-specific validations
@@ -101,44 +101,44 @@ export class Validator {
           value,
           field,
           data,
-        )
+        );
         if (!valid) {
           result.errors?.push({
             fieldId: fieldPath,
             message,
             ruleType: rule.type,
-          })
+          });
         }
       }
     }
 
     // Handle nested fields (for group, object types)
     if (
-      (field.type === 'group' || field.type === 'object') &&
+      (field.type === "group" || field.type === "object") &&
       field.nested &&
       field.nested.length > 0
     ) {
       const nestedData: Record<string, any> =
-        (value as Record<string, any>) || {}
+        (value as Record<string, any>) || {};
 
       for (const nestedField of field.nested) {
-        this.validateField(nestedField, nestedData, fieldPath, result)
+        this.validateField(nestedField, nestedData, fieldPath, result);
       }
     }
 
     // Handle array fields
-    if (field.type === 'array' && Array.isArray(value)) {
+    if (field.type === "array" && Array.isArray(value)) {
       for (let i = 0; i < value.length; i++) {
         if (field.nested && field.nested.length > 0) {
-          const item = value[i]
-          if (typeof item === 'object') {
+          const item = value[i];
+          if (typeof item === "object") {
             for (const nestedField of field.nested) {
               this.validateField(
                 nestedField,
                 item,
                 `${fieldPath}[${i}]`,
                 result,
-              )
+              );
             }
           }
         }
@@ -146,13 +146,13 @@ export class Validator {
     }
 
     // Handle oneOf fields (exactly one nested field must be valid)
-    if (field.type === 'oneOf' && field.nested && field.nested.length > 0) {
+    if (field.type === "oneOf" && field.nested && field.nested.length > 0) {
       // Implementation would check that exactly one option is selected
       // This is a simplified placeholder
     }
 
     // Handle anyOf fields (at least one nested field must be valid)
-    if (field.type === 'anyOf' && field.nested && field.nested.length > 0) {
+    if (field.type === "anyOf" && field.nested && field.nested.length > 0) {
       // Implementation would check that at least one option is selected
       // This is a simplified placeholder
     }
@@ -173,113 +173,113 @@ export class Validator {
     data: Record<string, any>,
   ): [boolean, string] {
     switch (rule.type) {
-      case 'required':
-        return [!this.isEmpty(value), rule.message]
+      case "required":
+        return [!this.isEmpty(value), rule.message];
 
-      case 'requiredIf': {
+      case "requiredIf": {
         // The parameters should be a Condition
         if (
           rule.parameters &&
-          typeof rule.parameters === 'object' &&
-          'type' in rule.parameters
+          typeof rule.parameters === "object" &&
+          "type" in rule.parameters
         ) {
-          const condition = rule.parameters as Condition
+          const condition = rule.parameters as Condition;
           if (this.evaluateCondition(condition, data)) {
-            return [!this.isEmpty(value), rule.message]
+            return [!this.isEmpty(value), rule.message];
           }
         }
-        return [true, '']
+        return [true, ""];
       }
 
-      case 'minLength': {
-        if (typeof value === 'string') {
-          const minLength = rule.parameters as number
-          return [value.length >= minLength, rule.message]
+      case "minLength": {
+        if (typeof value === "string") {
+          const minLength = rule.parameters as number;
+          return [value.length >= minLength, rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'maxLength': {
-        if (typeof value === 'string') {
-          const maxLength = rule.parameters as number
-          return [value.length <= maxLength, rule.message]
+      case "maxLength": {
+        if (typeof value === "string") {
+          const maxLength = rule.parameters as number;
+          return [value.length <= maxLength, rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'pattern': {
-        if (typeof value === 'string') {
-          const pattern = rule.parameters as string
+      case "pattern": {
+        if (typeof value === "string") {
+          const pattern = rule.parameters as string;
           try {
-            const re = new RegExp(pattern)
-            return [re.test(value), rule.message]
+            const re = new RegExp(pattern);
+            return [re.test(value), rule.message];
           } catch (e) {
-            return [false, 'Invalid pattern']
+            return [false, "Invalid pattern"];
           }
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'min': {
-        if (typeof value === 'number') {
-          const min = rule.parameters as number
-          return [value >= min, rule.message]
+      case "min": {
+        if (typeof value === "number") {
+          const min = rule.parameters as number;
+          return [value >= min, rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'max': {
-        if (typeof value === 'number') {
-          const max = rule.parameters as number
-          return [value <= max, rule.message]
+      case "max": {
+        if (typeof value === "number") {
+          const max = rule.parameters as number;
+          return [value <= max, rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'email': {
-        if (typeof value === 'string') {
+      case "email": {
+        if (typeof value === "string") {
           // Simple email regex - a production system would use a more comprehensive one
-          const re = /^[^@]+@[^@]+\.[^@]+$/
-          return [re.test(value), rule.message]
+          const re = /^[^@]+@[^@]+\.[^@]+$/;
+          return [re.test(value), rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'url': {
-        if (typeof value === 'string') {
+      case "url": {
+        if (typeof value === "string") {
           // Simple URL regex - a production system would use a more comprehensive one
-          const re = /^(http|https):\/\/[^\s/$.?#].[^\s]*$/
-          return [re.test(value), rule.message]
+          const re = /^(http|https):\/\/[^\s/$.?#].[^\s]*$/;
+          return [re.test(value), rule.message];
         }
-        return [false, rule.message]
+        return [false, rule.message];
       }
 
-      case 'fileType':
+      case "fileType":
         // Implementation would check file extension or MIME type
-        return [true, rule.message]
+        return [true, rule.message];
 
-      case 'fileSize':
+      case "fileSize":
         // Implementation would check file size
-        return [true, rule.message]
+        return [true, rule.message];
 
-      case 'imageDimensions':
+      case "imageDimensions":
         // Implementation would check image dimensions
-        return [true, rule.message]
+        return [true, rule.message];
 
-      case 'dependency':
+      case "dependency":
         // Implementation would check dependencies between fields
-        return [this.validateDependency(rule, field, data), rule.message]
+        return [this.validateDependency(rule, field, data), rule.message];
 
-      case 'unique':
+      case "unique":
         // Would typically require access to a data store to verify uniqueness
-        return [true, rule.message]
+        return [true, rule.message];
 
-      case 'custom':
+      case "custom":
         // Custom validation would be implemented by the application
-        return [true, rule.message]
+        return [true, rule.message];
 
       default:
-        return [true, '']
+        return [true, ""];
     }
   }
 
@@ -295,36 +295,36 @@ export class Validator {
     field: Field,
     data: Record<string, any>,
   ): boolean {
-    if (rule.parameters && typeof rule.parameters === 'object') {
-      const params = rule.parameters as Record<string, any>
-      const dependsOn = params.field as string
-      const operator = params.operator as string
-      const expectedValue = params.value
+    if (rule.parameters && typeof rule.parameters === "object") {
+      const params = rule.parameters as Record<string, any>;
+      const dependsOn = params.field as string;
+      const operator = params.operator as string;
+      const expectedValue = params.value;
 
-      const dependentValue = this.getValueByPath(data, dependsOn)
+      const dependentValue = this.getValueByPath(data, dependsOn);
 
       switch (operator) {
-        case 'eq':
-          return this.deepEqual(dependentValue, expectedValue)
-        case 'neq':
-          return !this.deepEqual(dependentValue, expectedValue)
-        case 'gt':
+        case "eq":
+          return this.deepEqual(dependentValue, expectedValue);
+        case "neq":
+          return !this.deepEqual(dependentValue, expectedValue);
+        case "gt":
           return (
-            typeof dependentValue === 'number' &&
-            typeof expectedValue === 'number' &&
+            typeof dependentValue === "number" &&
+            typeof expectedValue === "number" &&
             dependentValue > expectedValue
-          )
-        case 'lt':
+          );
+        case "lt":
           return (
-            typeof dependentValue === 'number' &&
-            typeof expectedValue === 'number' &&
+            typeof dependentValue === "number" &&
+            typeof expectedValue === "number" &&
             dependentValue < expectedValue
-          )
+          );
         default:
-          return false
+          return false;
       }
     }
-    return false
+    return false;
   }
 
   /**
@@ -337,133 +337,133 @@ export class Validator {
     switch (condition.type) {
       case ConditionType.Simple: {
         if (condition.field) {
-          const fieldValue = this.getValueByPath(data, condition.field)
+          const fieldValue = this.getValueByPath(data, condition.field);
 
           switch (condition.operator) {
-            case 'eq':
-              return this.deepEqual(fieldValue, condition.value)
-            case 'neq':
-              return !this.deepEqual(fieldValue, condition.value)
-            case 'contains': {
+            case "eq":
+              return this.deepEqual(fieldValue, condition.value);
+            case "neq":
+              return !this.deepEqual(fieldValue, condition.value);
+            case "contains": {
               if (
-                typeof fieldValue === 'string' &&
-                typeof condition.value === 'string'
+                typeof fieldValue === "string" &&
+                typeof condition.value === "string"
               ) {
-                return fieldValue.includes(condition.value)
+                return fieldValue.includes(condition.value);
               }
-              return false
+              return false;
             }
-            case 'startsWith': {
+            case "startsWith": {
               if (
-                typeof fieldValue === 'string' &&
-                typeof condition.value === 'string'
+                typeof fieldValue === "string" &&
+                typeof condition.value === "string"
               ) {
-                return fieldValue.startsWith(condition.value)
+                return fieldValue.startsWith(condition.value);
               }
-              return false
+              return false;
             }
-            case 'endsWith': {
+            case "endsWith": {
               if (
-                typeof fieldValue === 'string' &&
-                typeof condition.value === 'string'
+                typeof fieldValue === "string" &&
+                typeof condition.value === "string"
               ) {
-                return fieldValue.endsWith(condition.value)
+                return fieldValue.endsWith(condition.value);
               }
-              return false
+              return false;
             }
-            case 'gt': {
+            case "gt": {
               if (
-                typeof fieldValue === 'number' &&
-                typeof condition.value === 'number'
+                typeof fieldValue === "number" &&
+                typeof condition.value === "number"
               ) {
-                return fieldValue > condition.value
+                return fieldValue > condition.value;
               }
-              return false
+              return false;
             }
-            case 'gte': {
+            case "gte": {
               if (
-                typeof fieldValue === 'number' &&
-                typeof condition.value === 'number'
+                typeof fieldValue === "number" &&
+                typeof condition.value === "number"
               ) {
-                return fieldValue >= condition.value
+                return fieldValue >= condition.value;
               }
-              return false
+              return false;
             }
-            case 'lt': {
+            case "lt": {
               if (
-                typeof fieldValue === 'number' &&
-                typeof condition.value === 'number'
+                typeof fieldValue === "number" &&
+                typeof condition.value === "number"
               ) {
-                return fieldValue < condition.value
+                return fieldValue < condition.value;
               }
-              return false
+              return false;
             }
-            case 'lte': {
+            case "lte": {
               if (
-                typeof fieldValue === 'number' &&
-                typeof condition.value === 'number'
+                typeof fieldValue === "number" &&
+                typeof condition.value === "number"
               ) {
-                return fieldValue <= condition.value
+                return fieldValue <= condition.value;
               }
-              return false
+              return false;
             }
             default:
-              return false
+              return false;
           }
         }
-        return false
+        return false;
       }
 
       case ConditionType.And: {
         if (condition.conditions) {
           for (const subCondition of condition.conditions) {
             if (!this.evaluateCondition(subCondition, data)) {
-              return false
+              return false;
             }
           }
-          return true
+          return true;
         }
-        return false
+        return false;
       }
 
       case ConditionType.Or: {
         if (condition.conditions) {
           for (const subCondition of condition.conditions) {
             if (this.evaluateCondition(subCondition, data)) {
-              return true
+              return true;
             }
           }
-          return false
+          return false;
         }
-        return false
+        return false;
       }
 
       case ConditionType.Not: {
         if (condition.conditions && condition.conditions.length > 0) {
-          return !this.evaluateCondition(condition.conditions[0], data)
+          return !this.evaluateCondition(condition.conditions[0], data);
         }
-        return false
+        return false;
       }
 
       case ConditionType.Exists: {
         if (condition.field) {
-          const value = this.getValueByPath(data, condition.field)
-          return !this.isEmpty(value)
+          const value = this.getValueByPath(data, condition.field);
+          return !this.isEmpty(value);
         }
-        return false
+        return false;
       }
 
       case ConditionType.Expression: {
         // For expression evaluation, we would use a lightweight expression engine
         // This is a simplified placeholder
         if (condition.expression) {
-          return this.evaluateExpression(condition.expression, data)
+          return this.evaluateExpression(condition.expression, data);
         }
-        return false
+        return false;
       }
 
       default:
-        return false
+        return false;
     }
   }
 
@@ -481,9 +481,9 @@ export class Validator {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _o = {
       expression,
-      data
-    }
-    return true
+      data,
+    };
+    return true;
   }
 
   /**
@@ -493,24 +493,24 @@ export class Validator {
    */
   private isEmpty(value: any): boolean {
     if (value === null || value === undefined) {
-      return true
+      return true;
     }
 
     switch (typeof value) {
-      case 'string':
-        return value.trim() === ''
-      case 'object': {
+      case "string":
+        return value.trim() === "";
+      case "object": {
         if (Array.isArray(value)) {
-          return value.length === 0
+          return value.length === 0;
         }
-        return Object.keys(value).length === 0
+        return Object.keys(value).length === 0;
       }
-      case 'boolean':
-        return !value
-      case 'number':
-        return value === 0
+      case "boolean":
+        return !value;
+      case "number":
+        return value === 0;
       default:
-        return false
+        return false;
     }
   }
 
@@ -522,32 +522,32 @@ export class Validator {
    */
   private deepEqual(a: any, b: any): boolean {
     if (a === b) {
-      return true
+      return true;
     }
 
     if (
-      typeof a !== 'object' ||
+      typeof a !== "object" ||
       a === null ||
-      typeof b !== 'object' ||
+      typeof b !== "object" ||
       b === null
     ) {
-      return false
+      return false;
     }
 
-    const keysA = Object.keys(a)
-    const keysB = Object.keys(b)
+    const keysA = Object.keys(a);
+    const keysB = Object.keys(b);
 
     if (keysA.length !== keysB.length) {
-      return false
+      return false;
     }
 
     for (const key of keysA) {
       if (!keysB.includes(key) || !this.deepEqual(a[key], b[key])) {
-        return false
+        return false;
       }
     }
 
-    return true
+    return true;
   }
 
   /**
@@ -557,63 +557,63 @@ export class Validator {
    * @returns The value at the path or undefined
    */
   getValueByPath(data: Record<string, any>, path: string): any {
-    const parts = path.split('.')
+    const parts = path.split(".");
 
     // Handle array indexing
-    const arrayRegex = /(.*)\[(\d+)\]$/
+    const arrayRegex = /(.*)\[(\d+)\]$/;
 
-    let current = data
+    let current = data;
 
     for (let i = 0; i < parts.length; i++) {
-      const part = parts[i]
+      const part = parts[i];
 
       // Check if this part contains an array index
-      const matches = part.match(arrayRegex)
+      const matches = part.match(arrayRegex);
 
       if (matches) {
         // It's an array access
-        const fieldName = matches[1]
-        const indexStr = matches[2]
+        const fieldName = matches[1];
+        const indexStr = matches[2];
 
         // Get the array
-        const arr = current[fieldName]
+        const arr = current[fieldName];
         if (!arr || !Array.isArray(arr)) {
-          return undefined
+          return undefined;
         }
 
         // Get the index
-        const index = Number.parseInt(indexStr, 10)
+        const index = Number.parseInt(indexStr, 10);
 
         // Check if the index is valid
         if (index < 0 || index >= arr.length) {
-          return undefined
+          return undefined;
         }
 
         // If this is the last part, return the array element
         if (i === parts.length - 1) {
-          return arr[index]
+          return arr[index];
         }
 
         // Otherwise, ensure the element is an object and continue
-        if (typeof arr[index] === 'object' && arr[index] !== null) {
-          current = arr[index]
+        if (typeof arr[index] === "object" && arr[index] !== null) {
+          current = arr[index];
         } else {
-          return undefined
+          return undefined;
         }
       } else {
         // Regular field access
         if (i === parts.length - 1) {
-          return current[part]
+          return current[part];
         }
 
-        if (current[part] && typeof current[part] === 'object') {
-          current = current[part]
+        if (current[part] && typeof current[part] === "object") {
+          current = current[part];
         } else {
-          return undefined
+          return undefined;
         }
       }
     }
 
-    return undefined
+    return undefined;
   }
 }
