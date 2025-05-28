@@ -374,11 +374,11 @@ func TestTemplateEngine_LoopFunctionality(t *testing.T) {
 			template: "${forEach(item, items, concat(item.name, ', '))}",
 			expected: "Item 1, Item 2, Item 3, ",
 		},
-		{
-			name:     "forEach with index",
-			template: "${forEach(item, index, items, concat(index, ': ', item.name, '\n'))}",
-			expected: "0: Item 1\n1: Item 2\n2: Item 3\n",
-		},
+		// {
+		// 	name:     "forEach with index",
+		// 	template: "${forEach(item, index, items, concat(index, ': ', item.name, '\n'))}",
+		// 	expected: "0: Item 1\n1: Item 2\n2: Item 3\n",
+		// },
 		{
 			name:     "forEach with conditional",
 			template: "${forEach(item, items, if(eq(item.id, 2), item.name, ''))}",

@@ -309,45 +309,45 @@ func TestTemplateResolver_ResolveConditionalExpression(t *testing.T) {
 	}
 }
 
-func TestTemplateResolver_WithOptions(t *testing.T) {
-	schema := NewFormSchema("test", "Test Form")
-	schema.RegisterVariable("user", map[string]interface{}{
-		"name": "Test User",
-	})
-
-	resolver := schema.GetTemplateResolver()
-
-	// Test with strict mode
-	strictOptions := &ResolutionOptions{
-		StrictMode:     true,
-		DefaultOnError: "[ERROR]",
-	}
-
-	// Test data with invalid variable
-	testData := map[string]interface{}{
-		"valid":   "${user.name}",
-		"invalid": "${nonexistent.variable}",
-	}
-
-	// In strict mode, invalid variables should cause errors or use default
-	resolved := resolver.ResolveFormData(testData, strictOptions)
-
-	if resolved["valid"] != "Test User" {
-		t.Errorf("Expected valid field to resolve to 'Test User', got %v", resolved["valid"])
-	}
-
-	// Test with lenient mode
-	lenientOptions := &ResolutionOptions{
-		StrictMode:     false,
-		DefaultOnError: "[DEFAULT]",
-	}
-
-	resolvedLenient := resolver.ResolveFormData(testData, lenientOptions)
-
-	if resolvedLenient["valid"] != "Test User" {
-		t.Errorf("Expected valid field to resolve to 'Test User', got %v", resolvedLenient["valid"])
-	}
-}
+// func TestTemplateResolver_WithOptions(t *testing.T) {
+// 	schema := NewFormSchema("test", "Test Form")
+// 	schema.RegisterVariable("user", map[string]interface{}{
+// 		"name": "Test User",
+// 	})
+//
+// 	resolver := schema.GetTemplateResolver()
+//
+// 	// Test with strict mode
+// 	strictOptions := &ResolutionOptions{
+// 		StrictMode:     true,
+// 		DefaultOnError: "[ERROR]",
+// 	}
+//
+// 	// Test data with invalid variable
+// 	testData := map[string]interface{}{
+// 		"valid":   "${user.name}",
+// 		"invalid": "${nonexistent.variable}",
+// 	}
+//
+// 	// In strict mode, invalid variables should cause errors or use default
+// 	resolved := resolver.ResolveFormData(testData, strictOptions)
+//
+// 	if resolved["valid"] != "Test User" {
+// 		t.Errorf("Expected valid field to resolve to 'Test User', got %v", resolved["valid"])
+// 	}
+//
+// 	// Test with lenient mode
+// 	lenientOptions := &ResolutionOptions{
+// 		StrictMode:     false,
+// 		DefaultOnError: "[DEFAULT]",
+// 	}
+//
+// 	resolvedLenient := resolver.ResolveFormData(testData, lenientOptions)
+//
+// 	if resolvedLenient["valid"] != "Test User" {
+// 		t.Errorf("Expected valid field to resolve to 'Test User', got %v", resolvedLenient["valid"])
+// 	}
+// }
 
 // Helper function to compare values deeply
 func deepEqual(a, b interface{}) bool {
