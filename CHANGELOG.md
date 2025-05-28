@@ -1,3 +1,12 @@
+## [0.10.2](https://github.com/juicycleff/smartform/compare/v0.10.1...v0.10.2) (2025-05-28)
+
+
+### Bug Fixes
+
+* added condition evaluator ([3498c0c](https://github.com/juicycleff/smartform/commit/3498c0cafa2851c4246c94591566ed2bcf6dfe5f))
+
+
+
 ## [0.10.1](https://github.com/juicycleff/smartform/compare/v0.10.0...v0.10.1) (2025-05-28)
 
 
@@ -33,16 +42,6 @@
 * implemented react forms ([acb9868](https://github.com/juicycleff/smartform/commit/acb98685162e463bd03edd2131e3ff2a1ea9d672))
 * implemented react forms ([e05301d](https://github.com/juicycleff/smartform/commit/e05301d37fe01b270d8b53092d292440801545ba))
 * implemented react forms ([d1f1928](https://github.com/juicycleff/smartform/commit/d1f192810720878ac7f00b586fe0c931098f85e7))
-
-
-
-# [0.7.0](https://github.com/juicycleff/smartform/compare/v0.6.1...v0.7.0) (2025-05-27)
-
-
-### Features
-
-* implemented react forms ([2c417ef](https://github.com/juicycleff/smartform/commit/2c417ef29ddabfb6dd8cde8517437f3d9bf58feb))
-* implemented react forms ([f9c1903](https://github.com/juicycleff/smartform/commit/f9c19033a1cc1e3b5a34ab771164f916ec24c904))
 
 
 
