@@ -158,14 +158,43 @@ func (ce *ConditionEvaluator) evaluateSimple(condition *Condition, ctx *Evaluati
 		}
 	}
 
+	// Note: exists is now always true since we fall back to field name as literal value
+	// Handle special operators that need to know if the original field was actually found
 	if !exists {
-		// Handle missing fields based on operator
+		// This case should not happen anymore with the updated resolveFieldValue,
+		// but keeping for backward compatibility with specific operator behaviors
 		switch condition.Operator {
-		case "exists", "neq", "not_eq", "!=":
-			return condition.Operator != "exists", nil
+		case "exists":
+			return false, nil
+		case "neq", "not_eq", "!=":
+			return true, nil
 		default:
 			return false, nil
 		}
+	}
+
+	// For exists operator, check if we got back the original field name (meaning it wasn't found)
+	if condition.Operator == "exists" {
+		// If the field value equals the field name, it means the field wasn't actually found
+		if fieldValue == condition.Field {
+			// Check if this was a template expression that failed to resolve
+			if ce.isTemplateExpression(condition.Field) {
+				return false, nil
+			}
+			// For simple field names, if we only have the field name back, the field doesn't exist
+			if _, fieldExistsInContext := ctx.Fields[condition.Field]; !fieldExistsInContext {
+				// Also check if template engine would have resolved it
+				if ce.TemplateEngine != nil {
+					templateExpr := "${" + condition.Field + "}"
+					if value, err := ce.TemplateEngine.EvaluateExpression(templateExpr, ctx.TemplateContext); err != nil || value == nil {
+						return false, nil
+					}
+				} else {
+					return false, nil
+				}
+			}
+		}
+		return !ce.isEmpty(fieldValue), nil
 	}
 
 	// Resolve comparison value if it's a template expression
@@ -214,7 +243,9 @@ func (ce *ConditionEvaluator) resolveFieldValue(field string, ctx *EvaluationCon
 		}
 	}
 
-	return nil, false, nil
+	// If field is not found anywhere, treat the field name itself as a literal value
+	// This allows conditions like {"field": "green", "value": "green", "operator": "eq"} to match
+	return field, true, nil
 }
 
 // isTemplateExpression checks if a string contains template syntax
@@ -302,21 +333,32 @@ func (ce *ConditionEvaluator) evaluateExists(condition *Condition, ctx *Evaluati
 		}
 	}
 
-	fieldValue, exists, err := ce.resolveFieldValue(condition.Field, ctx)
-	if err != nil {
-		return false, &EvaluationError{
-			Message:   fmt.Sprintf("error resolving field value: %v", err),
-			Field:     condition.Field,
-			Condition: condition,
-			Cause:     err,
+	// Check if field actually exists in context or can be resolved via template
+	if ce.EnableTemplateFields && ce.TemplateEngine != nil && ce.isTemplateExpression(condition.Field) {
+		// For template expressions, try to resolve and check if successful
+		value, err := ce.TemplateEngine.EvaluateExpression(condition.Field, ctx.TemplateContext)
+		if err != nil {
+			return false, nil // Template resolution failed, field doesn't exist
+		}
+		return value != nil && !ce.isEmpty(value), nil
+	}
+
+	// Direct field lookup
+	if fieldValue, exists := ctx.Fields[condition.Field]; exists {
+		return !ce.isEmpty(fieldValue), nil
+	}
+
+	// Try template engine for variable resolution
+	if ce.TemplateEngine != nil {
+		templateExpr := "${" + condition.Field + "}"
+		value, err := ce.TemplateEngine.EvaluateExpression(templateExpr, ctx.TemplateContext)
+		if err == nil && value != nil {
+			return !ce.isEmpty(value), nil
 		}
 	}
 
-	if !exists {
-		return false, nil
-	}
-
-	return !ce.isEmpty(fieldValue), nil
+	// Field doesn't exist in any resolvable form
+	return false, nil
 }
 
 // evaluateExpression handles custom expressions using template engine
@@ -419,10 +461,7 @@ func (ce *ConditionEvaluator) compareValues(fieldValue, compareValue interface{}
 		return ce.isIn(fieldValue, compareValue)
 	case "not_in":
 		o, err := ce.isIn(fieldValue, compareValue)
-		if err != nil {
-			return false, err
-		}
-		return !o, nil
+		return !o, err
 	case "empty":
 		return ce.isEmpty(fieldValue), nil
 	case "not_empty":
