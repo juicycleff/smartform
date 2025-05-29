@@ -29,7 +29,6 @@ func NewConditionEvaluator() *ConditionEvaluator {
 		CustomFunctions:      make(map[string]func(args ...interface{}) (interface{}, error)),
 		CaseSensitive:        true,
 		EnableTemplateFields: true,
-		TemplateEngine:       template.NewTemplateEngine(),
 	}
 }
 
