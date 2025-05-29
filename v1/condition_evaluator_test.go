@@ -3,6 +3,8 @@ package smartform
 import (
 	"testing"
 	"time"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 func TestConditionEvaluator_SimpleConditions(t *testing.T) {
@@ -788,5 +790,481 @@ func ExampleConditionEvaluator() {
 		println("User meets the conditions!")
 	} else {
 		println("User does not meet the conditions.")
+	}
+}
+
+func TestConditionEvaluator_TemplateIntegration(t *testing.T) {
+	evaluator := NewConditionEvaluator()
+	templateEngine := template.NewTemplateEngine()
+	evaluator.SetTemplateEngine(templateEngine)
+
+	// Register some variables in the template engine
+	templateEngine.GetVariableRegistry().RegisterVariable("user", map[string]interface{}{
+		"name":    "John",
+		"age":     25,
+		"premium": true,
+		"balance": 150.50,
+	})
+
+	templateEngine.GetVariableRegistry().RegisterVariable("config", map[string]interface{}{
+		"minAge":       18,
+		"premiumBonus": 10.0,
+	})
+
+	tests := []struct {
+		name      string
+		condition *Condition
+		context   *EvaluationContext
+		expected  bool
+		wantError bool
+	}{
+		{
+			name: "Simple template field reference",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "${user.name}",
+				Operator: "eq",
+				Value:    "John",
+			},
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "Template field with template value",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "${user.age}",
+				Operator: "gte",
+				Value:    "${config.minAge}",
+			},
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "Complex template expression condition",
+			condition: &Condition{
+				Type:       ConditionTypeExpression,
+				Expression: "${user.premium}",
+			},
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "Template field with context override",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "${user.name}",
+				Operator: "eq",
+				Value:    "Alice",
+			},
+			context: func() *EvaluationContext {
+				ctx := NewEvaluationContext()
+				ctx.AddField("user", map[string]interface{}{
+					"name": "Alice",
+				})
+				return ctx
+			}(),
+			expected: true,
+		},
+		{
+			name: "Non-template field lookup",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "simple_field",
+				Operator: "eq",
+				Value:    "test_value",
+			},
+			context: func() *EvaluationContext {
+				ctx := NewEvaluationContext()
+				ctx.AddField("simple_field", "test_value")
+				return ctx
+			}(),
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := evaluator.Evaluate(tt.condition, tt.context)
+			if (err != nil) != tt.wantError {
+				t.Errorf("Evaluate() error = %v, wantError %v", err, tt.wantError)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("Evaluate() = %v, expected %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestTemplateConditionBuilder(t *testing.T) {
+	evaluator := NewConditionEvaluator()
+	templateEngine := template.NewTemplateEngine()
+	evaluator.SetTemplateEngine(templateEngine)
+
+	builder := NewTemplateConditionBuilder(evaluator)
+
+	// Register test data
+	templateEngine.GetVariableRegistry().RegisterVariable("user", map[string]interface{}{
+		"age":     30,
+		"role":    "admin",
+		"active":  true,
+		"balance": 100.0,
+	})
+
+	tests := []struct {
+		name      string
+		condition *Condition
+		context   *EvaluationContext
+		expected  bool
+	}{
+		{
+			name:      "Simple condition via builder",
+			condition: builder.SimpleCondition("${user.age}", "gt", 18),
+			context:   NewEvaluationContext(),
+			expected:  true,
+		},
+		{
+			name:      "Template condition via builder",
+			condition: builder.TemplateCondition("user.role", "eq", "admin"),
+			context:   NewEvaluationContext(),
+			expected:  true,
+		},
+		{
+			name:      "Expression condition via builder",
+			condition: builder.ExpressionCondition("${user.active}"),
+			context:   NewEvaluationContext(),
+			expected:  true,
+		},
+		{
+			name: "Complex AND condition",
+			condition: builder.And(
+				builder.SimpleCondition("${user.age}", "gte", 18),
+				builder.SimpleCondition("${user.role}", "eq", "admin"),
+				builder.ExpressionCondition("${user.active}"),
+			),
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "Complex OR condition",
+			condition: builder.Or(
+				builder.SimpleCondition("${user.role}", "eq", "admin"),
+				builder.SimpleCondition("${user.balance}", "gt", 1000),
+			),
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "NOT condition",
+			condition: builder.Not(
+				builder.SimpleCondition("${user.role}", "eq", "guest"),
+			),
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name:      "EXISTS condition",
+			condition: builder.Exists("${user.age}"),
+			context:   NewEvaluationContext(),
+			expected:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := evaluator.Evaluate(tt.condition, tt.context)
+			if err != nil {
+				t.Errorf("Evaluate() error = %v", err)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("Evaluate() = %v, expected %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestConditionEvaluator_WithoutTemplateEngine(t *testing.T) {
+	evaluator := NewConditionEvaluator()
+	// Don't set template engine - should fall back to direct field lookup
+
+	tests := []struct {
+		name      string
+		condition *Condition
+		context   *EvaluationContext
+		expected  bool
+		wantError bool
+	}{
+		{
+			name: "Direct field lookup without template engine",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "name",
+				Operator: "eq",
+				Value:    "John",
+			},
+			context: func() *EvaluationContext {
+				ctx := NewEvaluationContext()
+				ctx.AddField("name", "John")
+				return ctx
+			}(),
+			expected: true,
+		},
+		{
+			name: "Simple expression without template engine",
+			condition: &Condition{
+				Type:       ConditionTypeExpression,
+				Expression: "true",
+			},
+			context:  NewEvaluationContext(),
+			expected: true,
+		},
+		{
+			name: "Template syntax fails gracefully without engine",
+			condition: &Condition{
+				Type:     ConditionTypeSimple,
+				Field:    "${user.name}",
+				Operator: "eq",
+				Value:    "John",
+			},
+			context:   NewEvaluationContext(),
+			expected:  false,
+			wantError: false, // Should not error, just return false for missing field
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result, err := evaluator.Evaluate(tt.condition, tt.context)
+			if (err != nil) != tt.wantError {
+				t.Errorf("Evaluate() error = %v, wantError %v", err, tt.wantError)
+				return
+			}
+			if result != tt.expected {
+				t.Errorf("Evaluate() = %v, expected %v", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestEvaluationContext_Methods(t *testing.T) {
+	ctx := NewEvaluationContext()
+
+	// Test AddField
+	ctx.AddField("name", "John")
+	ctx.AddField("age", 30)
+
+	if ctx.Fields["name"] != "John" {
+		t.Errorf("Expected name to be 'John', got %v", ctx.Fields["name"])
+	}
+
+	if ctx.TemplateContext["name"] != "John" {
+		t.Errorf("Expected template context name to be 'John', got %v", ctx.TemplateContext["name"])
+	}
+
+	// Test AddMeta
+	ctx.AddMeta("timestamp", time.Now())
+	ctx.AddMeta("user_id", 123)
+
+	if ctx.Meta["timestamp"] == nil {
+		t.Error("Expected timestamp in meta")
+	}
+
+	if ctx.TemplateContext["_meta_user_id"] != 123 {
+		t.Errorf("Expected meta user_id to be 123, got %v", ctx.TemplateContext["_meta_user_id"])
+	}
+
+	// Test MergeFields
+	additionalFields := map[string]interface{}{
+		"email":   "john@example.com",
+		"premium": true,
+	}
+	ctx.MergeFields(additionalFields)
+
+	if ctx.Fields["email"] != "john@example.com" {
+		t.Errorf("Expected email to be 'john@example.com', got %v", ctx.Fields["email"])
+	}
+
+	if ctx.TemplateContext["premium"] != true {
+		t.Errorf("Expected premium to be true, got %v", ctx.TemplateContext["premium"])
+	}
+}
+
+func TestConditionEvaluator_CaseSensitivity(t *testing.T) {
+	caseSensitive := NewConditionEvaluator()
+	caseSensitive.CaseSensitive = true
+
+	caseInsensitive := NewConditionEvaluator()
+	caseInsensitive.CaseSensitive = false
+
+	condition := &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    "name",
+		Operator: "eq",
+		Value:    "JOHN",
+	}
+
+	ctx := NewEvaluationContext()
+	ctx.AddField("name", "john")
+
+	// Case sensitive should return false
+	result, err := caseSensitive.Evaluate(condition, ctx)
+	if err != nil {
+		t.Errorf("Case sensitive evaluation error: %v", err)
+	}
+	if result {
+		t.Error("Case sensitive evaluation should return false for 'john' vs 'JOHN'")
+	}
+
+	// Case insensitive should return true
+	result, err = caseInsensitive.Evaluate(condition, ctx)
+	if err != nil {
+		t.Errorf("Case insensitive evaluation error: %v", err)
+	}
+	if !result {
+		t.Error("Case insensitive evaluation should return true for 'john' vs 'JOHN'")
+	}
+}
+
+func TestConditionEvaluator_ToBool(t *testing.T) {
+	evaluator := NewConditionEvaluator()
+
+	tests := []struct {
+		input    interface{}
+		expected bool
+	}{
+		{nil, false},
+		{true, true},
+		{false, false},
+		{0, false},
+		{1, true},
+		{-1, true},
+		{0.0, false},
+		{1.5, true},
+		{"", false},
+		{"test", true},
+		{[]interface{}{}, false},
+		{[]interface{}{1, 2}, true},
+		{map[string]interface{}{}, false},
+		{map[string]interface{}{"key": "value"}, true},
+	}
+
+	for _, test := range tests {
+		result := evaluator.toBool(test.input)
+		if result != test.expected {
+			t.Errorf("toBool(%v) = %v, expected %v", test.input, result, test.expected)
+		}
+	}
+}
+
+// Integration test demonstrating real-world usage
+func TestConditionEvaluator_RealWorldScenario(t *testing.T) {
+	evaluator := NewConditionEvaluator()
+	templateEngine := template.NewTemplateEngine()
+	evaluator.SetTemplateEngine(templateEngine)
+	builder := NewTemplateConditionBuilder(evaluator)
+
+	// Setup application state in template engine
+	templateEngine.GetVariableRegistry().RegisterVariable("user", map[string]interface{}{
+		"id":        123,
+		"email":     "admin@example.com",
+		"role":      "admin",
+		"age":       28,
+		"premium":   true,
+		"balance":   250.75,
+		"lastLogin": time.Now().AddDate(0, 0, -1), // Yesterday
+	})
+
+	templateEngine.GetVariableRegistry().RegisterVariable("config", map[string]interface{}{
+		"minAge":           18,
+		"premiumThreshold": 100.0,
+		"adminRoles":       []string{"admin", "moderator", "superuser"},
+	})
+
+	// Test complex business rules
+	tests := []struct {
+		name        string
+		description string
+		condition   *Condition
+		expected    bool
+	}{
+		{
+			name:        "Admin Access Rule",
+			description: "User must be admin and over 18",
+			condition: builder.And(
+				builder.SimpleCondition("${user.role}", "eq", "admin"),
+				builder.SimpleCondition("${user.age}", "gte", "${config.minAge}"),
+			),
+			expected: true,
+		},
+		{
+			name:        "Premium Feature Access",
+			description: "User must be premium OR have high balance",
+			condition: builder.Or(
+				builder.ExpressionCondition("${user.premium}"),
+				builder.SimpleCondition("${user.balance}", "gt", "${config.premiumThreshold}"),
+			),
+			expected: true,
+		},
+		{
+			name:        "Account Security Check",
+			description: "User must be active (not guest) and have recent login",
+			condition: builder.And(
+				builder.Not(builder.SimpleCondition("${user.role}", "eq", "guest")),
+				builder.Exists("${user.lastLogin}"),
+			),
+			expected: true,
+		},
+		{
+			name:        "Email Validation",
+			description: "User email must contain @ and be from allowed domain",
+			condition: builder.And(
+				builder.SimpleCondition("${user.email}", "contains", "@"),
+				builder.SimpleCondition("${user.email}", "ends_with", ".com"),
+			),
+			expected: true,
+		},
+	}
+
+	ctx := NewEvaluationContext()
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result, err := evaluator.Evaluate(test.condition, ctx)
+			if err != nil {
+				t.Errorf("Evaluate() error = %v", err)
+				return
+			}
+			if result != test.expected {
+				t.Errorf("%s failed: got %v, expected %v", test.description, result, test.expected)
+			}
+		})
+	}
+}
+
+func BenchmarkConditionEvaluator_TemplateIntegration(b *testing.B) {
+	evaluator := NewConditionEvaluator()
+	templateEngine := template.NewTemplateEngine()
+	evaluator.SetTemplateEngine(templateEngine)
+
+	templateEngine.GetVariableRegistry().RegisterVariable("user", map[string]interface{}{
+		"age":  25,
+		"role": "admin",
+	})
+
+	condition := &Condition{
+		Type: ConditionTypeAnd,
+		Conditions: []*Condition{
+			{Type: ConditionTypeSimple, Field: "${user.age}", Operator: "gte", Value: 18},
+			{Type: ConditionTypeSimple, Field: "${user.role}", Operator: "eq", Value: "admin"},
+		},
+	}
+
+	ctx := NewEvaluationContext()
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = evaluator.Evaluate(condition, ctx)
 	}
 }

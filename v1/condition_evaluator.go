@@ -7,28 +7,78 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/juicycleff/smartform/v1/template"
 )
 
 // ConditionEvaluator provides methods to evaluate conditions against field data
 type ConditionEvaluator struct {
+	// TemplateEngine for resolving template expressions in condition fields
+	TemplateEngine *template.TemplateEngine
 	// CustomFunctions allows registration of custom functions for expressions
 	CustomFunctions map[string]func(args ...interface{}) (interface{}, error)
 	// CaseSensitive determines if string comparisons are case sensitive
 	CaseSensitive bool
+	// EnableTemplateFields determines if fields should be evaluated as templates
+	EnableTemplateFields bool
 }
 
 // NewConditionEvaluator creates a new condition evaluator with default settings
 func NewConditionEvaluator() *ConditionEvaluator {
 	return &ConditionEvaluator{
-		CustomFunctions: make(map[string]func(args ...interface{}) (interface{}, error)),
-		CaseSensitive:   true,
+		CustomFunctions:      make(map[string]func(args ...interface{}) (interface{}, error)),
+		CaseSensitive:        true,
+		EnableTemplateFields: true,
+		TemplateEngine:       template.NewTemplateEngine(),
 	}
 }
 
+// SetTemplateEngine sets the template engine for variable resolution
+func (ce *ConditionEvaluator) SetTemplateEngine(engine *template.TemplateEngine) {
+	ce.TemplateEngine = engine
+}
+
 // EvaluationContext holds the data and metadata for condition evaluation
+// Enhanced to work with template engine
 type EvaluationContext struct {
 	Fields map[string]interface{} // Field values to evaluate against
 	Meta   map[string]interface{} // Additional metadata (user roles, timestamps, etc.)
+	// TemplateContext is passed directly to template engine for variable resolution
+	TemplateContext map[string]interface{}
+}
+
+// NewEvaluationContext creates a new evaluation context
+func NewEvaluationContext() *EvaluationContext {
+	return &EvaluationContext{
+		Fields:          make(map[string]interface{}),
+		Meta:            make(map[string]interface{}),
+		TemplateContext: make(map[string]interface{}),
+	}
+}
+
+// AddField adds a field to the context
+func (ctx *EvaluationContext) AddField(name string, value interface{}) {
+	ctx.Fields[name] = value
+	if ctx.TemplateContext == nil {
+		ctx.TemplateContext = make(map[string]interface{})
+	}
+	ctx.TemplateContext[name] = value
+}
+
+// AddMeta adds metadata to the context
+func (ctx *EvaluationContext) AddMeta(name string, value interface{}) {
+	ctx.Meta[name] = value
+	if ctx.TemplateContext == nil {
+		ctx.TemplateContext = make(map[string]interface{})
+	}
+	ctx.TemplateContext["_meta_"+name] = value
+}
+
+// MergeFields merges multiple fields into the context
+func (ctx *EvaluationContext) MergeFields(fields map[string]interface{}) {
+	for name, value := range fields {
+		ctx.AddField(name, value)
+	}
 }
 
 // EvaluationError represents an error during condition evaluation
@@ -57,10 +107,7 @@ func (ce *ConditionEvaluator) Evaluate(condition *Condition, ctx *EvaluationCont
 	}
 
 	if ctx == nil {
-		ctx = &EvaluationContext{
-			Fields: make(map[string]interface{}),
-			Meta:   make(map[string]interface{}),
-		}
+		ctx = NewEvaluationContext()
 	}
 
 	switch condition.Type {
@@ -84,7 +131,7 @@ func (ce *ConditionEvaluator) Evaluate(condition *Condition, ctx *EvaluationCont
 	}
 }
 
-// evaluateSimple handles simple field comparisons
+// evaluateSimple handles simple field comparisons with template support
 func (ce *ConditionEvaluator) evaluateSimple(condition *Condition, ctx *EvaluationContext) (bool, error) {
 	if condition.Field == "" {
 		return false, &EvaluationError{
@@ -101,18 +148,79 @@ func (ce *ConditionEvaluator) evaluateSimple(condition *Condition, ctx *Evaluati
 		}
 	}
 
-	fieldValue, exists := ctx.Fields[condition.Field]
+	// Resolve field value using template engine if available and field contains template syntax
+	fieldValue, exists, err := ce.resolveFieldValue(condition.Field, ctx)
+	if err != nil {
+		return false, &EvaluationError{
+			Message:   fmt.Sprintf("error resolving field value: %v", err),
+			Field:     condition.Field,
+			Condition: condition,
+			Cause:     err,
+		}
+	}
+
 	if !exists {
 		// Handle missing fields based on operator
 		switch condition.Operator {
-		case "exists", "neq", "not_eq":
+		case "exists", "neq", "not_eq", "!=":
 			return condition.Operator != "exists", nil
 		default:
 			return false, nil
 		}
 	}
 
-	return ce.compareValues(fieldValue, condition.Value, condition.Operator, condition.Field)
+	// Resolve comparison value if it's a template expression
+	compareValue := condition.Value
+	if ce.EnableTemplateFields && ce.TemplateEngine != nil {
+		if strValue, ok := condition.Value.(string); ok && ce.isTemplateExpression(strValue) {
+			resolvedValue, err := ce.TemplateEngine.EvaluateExpression(strValue, ctx.TemplateContext)
+			if err != nil {
+				return false, &EvaluationError{
+					Message:   fmt.Sprintf("error resolving comparison value template '%s': %v", strValue, err),
+					Field:     condition.Field,
+					Condition: condition,
+					Cause:     err,
+				}
+			}
+			compareValue = resolvedValue
+		}
+	}
+
+	return ce.compareValues(fieldValue, compareValue, condition.Operator, condition.Field)
+}
+
+// resolveFieldValue resolves a field value, supporting both direct lookup and template expressions
+func (ce *ConditionEvaluator) resolveFieldValue(field string, ctx *EvaluationContext) (interface{}, bool, error) {
+	// If template engine is available and field contains template syntax, use template resolution
+	if ce.EnableTemplateFields && ce.TemplateEngine != nil && ce.isTemplateExpression(field) {
+		value, err := ce.TemplateEngine.EvaluateExpression(field, ctx.TemplateContext)
+		if err != nil {
+			return nil, false, err
+		}
+		return value, value != nil, nil
+	}
+
+	// Direct field lookup
+	if value, exists := ctx.Fields[field]; exists {
+		return value, true, nil
+	}
+
+	// Try template engine for variable resolution if field is a simple variable reference
+	if ce.TemplateEngine != nil {
+		// Convert simple field reference to template syntax and try again
+		templateExpr := "${" + field + "}"
+		value, err := ce.TemplateEngine.EvaluateExpression(templateExpr, ctx.TemplateContext)
+		if err == nil && value != nil {
+			return value, true, nil
+		}
+	}
+
+	return nil, false, nil
+}
+
+// isTemplateExpression checks if a string contains template syntax
+func (ce *ConditionEvaluator) isTemplateExpression(str string) bool {
+	return strings.Contains(str, "${") && strings.Contains(str, "}")
 }
 
 // evaluateAnd handles logical AND conditions
@@ -195,7 +303,16 @@ func (ce *ConditionEvaluator) evaluateExists(condition *Condition, ctx *Evaluati
 		}
 	}
 
-	fieldValue, exists := ctx.Fields[condition.Field]
+	fieldValue, exists, err := ce.resolveFieldValue(condition.Field, ctx)
+	if err != nil {
+		return false, &EvaluationError{
+			Message:   fmt.Sprintf("error resolving field value: %v", err),
+			Field:     condition.Field,
+			Condition: condition,
+			Cause:     err,
+		}
+	}
+
 	if !exists {
 		return false, nil
 	}
@@ -203,7 +320,7 @@ func (ce *ConditionEvaluator) evaluateExists(condition *Condition, ctx *Evaluati
 	return !ce.isEmpty(fieldValue), nil
 }
 
-// evaluateExpression handles custom expressions (basic implementation)
+// evaluateExpression handles custom expressions using template engine
 func (ce *ConditionEvaluator) evaluateExpression(condition *Condition, ctx *EvaluationContext) (bool, error) {
 	if condition.Expression == "" {
 		return false, &EvaluationError{
@@ -212,8 +329,68 @@ func (ce *ConditionEvaluator) evaluateExpression(condition *Condition, ctx *Eval
 		}
 	}
 
-	// Simple expression evaluator - can be extended with a proper parser
+	// Use template engine if available
+	if ce.TemplateEngine != nil {
+		// Ensure expression is wrapped in template syntax if not already
+		expression := condition.Expression
+		if !ce.isTemplateExpression(expression) {
+			expression = "${" + expression + "}"
+		}
+
+		result, err := ce.TemplateEngine.EvaluateExpression(expression, ctx.TemplateContext)
+		if err != nil {
+			return false, &EvaluationError{
+				Message:   fmt.Sprintf("error evaluating template expression '%s': %v", expression, err),
+				Condition: condition,
+				Cause:     err,
+			}
+		}
+
+		// Convert result to boolean
+		return ce.toBool(result), nil
+	}
+
+	// Fallback to simple expression evaluator
 	return ce.evaluateSimpleExpression(condition.Expression, ctx)
+}
+
+// toBool converts various types to boolean following JavaScript-like truthiness rules
+func (ce *ConditionEvaluator) toBool(value interface{}) bool {
+	if value == nil {
+		return false
+	}
+
+	switch v := value.(type) {
+	case bool:
+		return v
+	case int:
+		return v != 0
+	case int32:
+		return v != 0
+	case int64:
+		return v != 0
+	case float32:
+		return v != 0
+	case float64:
+		return v != 0
+	case string:
+		return v != ""
+	case []interface{}:
+		return len(v) > 0
+	case map[string]interface{}:
+		return len(v) > 0
+	default:
+		// For other types, use reflection
+		rv := reflect.ValueOf(value)
+		switch rv.Kind() {
+		case reflect.Slice, reflect.Array, reflect.Map, reflect.Chan:
+			return rv.Len() > 0
+		case reflect.Ptr, reflect.Interface:
+			return !rv.IsNil()
+		default:
+			return true // Non-nil values are generally truthy
+		}
+	}
 }
 
 // compareValues compares two values using the specified operator
@@ -261,7 +438,7 @@ func (ce *ConditionEvaluator) compareValues(fieldValue, compareValue interface{}
 	}
 }
 
-// Type conversion and comparison methods
+// Type conversion and comparison methods (same as before)
 
 func (ce *ConditionEvaluator) isEqual(a, b interface{}) bool {
 	if a == nil && b == nil {
@@ -463,11 +640,8 @@ func (ce *ConditionEvaluator) toTime(value interface{}) (time.Time, error) {
 	}
 }
 
-// Simple expression evaluator (can be extended)
+// Simple expression evaluator fallback (when template engine is not available)
 func (ce *ConditionEvaluator) evaluateSimpleExpression(expr string, ctx *EvaluationContext) (bool, error) {
-	// Basic implementation - supports field references and simple comparisons
-	// This can be extended with a proper expression parser like govaluate
-
 	expr = strings.TrimSpace(expr)
 
 	// Handle field references like ${field_name}
@@ -572,4 +746,81 @@ func (ce *ConditionEvaluator) Validate(condition *Condition) error {
 	}
 
 	return nil
+}
+
+// TemplateConditionBuilder helps build conditions with template expressions
+type TemplateConditionBuilder struct {
+	evaluator *ConditionEvaluator
+}
+
+// NewTemplateConditionBuilder creates a new builder for template-enhanced conditions
+func NewTemplateConditionBuilder(evaluator *ConditionEvaluator) *TemplateConditionBuilder {
+	return &TemplateConditionBuilder{
+		evaluator: evaluator,
+	}
+}
+
+// SimpleCondition creates a simple condition with template field support
+func (tcb *TemplateConditionBuilder) SimpleCondition(field, operator string, value interface{}) *Condition {
+	return &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    field,
+		Operator: operator,
+		Value:    value,
+	}
+}
+
+// TemplateCondition creates a condition where the field is a template expression
+func (tcb *TemplateConditionBuilder) TemplateCondition(fieldTemplate, operator string, value interface{}) *Condition {
+	// Ensure field template has proper syntax
+	if !strings.Contains(fieldTemplate, "${") {
+		fieldTemplate = "${" + fieldTemplate + "}"
+	}
+
+	return &Condition{
+		Type:     ConditionTypeSimple,
+		Field:    fieldTemplate,
+		Operator: operator,
+		Value:    value,
+	}
+}
+
+// ExpressionCondition creates a condition using a template expression
+func (tcb *TemplateConditionBuilder) ExpressionCondition(expression string) *Condition {
+	return &Condition{
+		Type:       ConditionTypeExpression,
+		Expression: expression,
+	}
+}
+
+// And creates an AND condition
+func (tcb *TemplateConditionBuilder) And(conditions ...*Condition) *Condition {
+	return &Condition{
+		Type:       ConditionTypeAnd,
+		Conditions: conditions,
+	}
+}
+
+// Or creates an OR condition
+func (tcb *TemplateConditionBuilder) Or(conditions ...*Condition) *Condition {
+	return &Condition{
+		Type:       ConditionTypeOr,
+		Conditions: conditions,
+	}
+}
+
+// Not creates a NOT condition
+func (tcb *TemplateConditionBuilder) Not(condition *Condition) *Condition {
+	return &Condition{
+		Type:       ConditionTypeNot,
+		Conditions: []*Condition{condition},
+	}
+}
+
+// Exists creates an EXISTS condition
+func (tcb *TemplateConditionBuilder) Exists(field string) *Condition {
+	return &Condition{
+		Type:  ConditionTypeExists,
+		Field: field,
+	}
 }
